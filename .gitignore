@@ -1,0 +1,43 @@
+## Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## NuGet
+*.nupkg
+packages/
+!packages/build/
+
+## Publicación
+publish/
+*.publishsettings
+PublishScripts/
+
+## Varios
+*.zip
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+## Base de datos local de SQLite
+*.db
+*.db-shm
+*.db-wal
+
+## Informes generados
+pagos-*.txt
+
+## Informes generados dentro del contenedor
+informes/*
+!informes/.gitkeep

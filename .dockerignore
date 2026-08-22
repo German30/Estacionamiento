@@ -1,0 +1,38 @@
+# Todo lo que no necesita la imagen de la API. Cuanto menos viaje al demonio de Docker,
+# más rápido arranca la compilación y menos capas se invalidan sin motivo.
+
+# Resultados de compilación: la imagen los reconstruye desde cero.
+**/bin/
+**/obj/
+**/publish/
+
+# Las pruebas se ejecutan con dotnet test, no dentro de la imagen.
+tests/
+
+# Control de versiones y herramientas
+.git/
+.gitignore
+.gitattributes
+.vs/
+.idea/
+.vscode/
+.editorconfig
+*.user
+*.suo
+
+# El propio andamiaje de Docker: cambiarlo no debe invalidar la capa del código.
+Dockerfile
+compose.yaml
+docker-compose*.yml
+.dockerignore
+
+# Datos e informes locales
+*.db
+*.db-shm
+*.db-wal
+informes/
+pagos-*.txt
+
+# Documentación
+README.md
+*.md

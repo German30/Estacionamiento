@@ -1,0 +1,87 @@
+# Backend del estacionamiento: la API web y su base de datos.
+#
+#   docker compose up -d --build     levanta MySQL y la API
+#   docker compose logs -f web       ver el arranque y las migraciones
+#   docker compose down              parar, conservando los datos
+#   docker compose down --volumes    parar y borrar también los datos
+#
+# La API queda en http://localhost:5209 (documentación en /swagger).
+
+name: estacionamiento
+
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: estacionamiento-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
+      TZ: America/Mexico_City
+    # utf8mb4 en el servidor, no sólo en la base: las placas son ASCII, pero los mensajes y los
+    # encabezados de los informes llevan acentos y pasan por aquí.
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    ports:
+      # 3307 en el anfitrión para no chocar con un MySQL instalado localmente en el 3306.
+      # Para MySQL Workbench: 127.0.0.1:3307, usuario root.
+      - "${PUERTO_MYSQL:-3307}:3306"
+    volumes:
+      - datos-mysql:/var/lib/mysql
+      # La base se crea con el mismo script que documenta el README para instalaciones locales,
+      # en lugar de con MYSQL_DATABASE, para que no haya dos maneras distintas de crearla que
+      # puedan divergir. Sólo se ejecuta la primera vez, con el volumen vacío.
+      - ./db/crear-base-de-datos.sql:/docker-entrypoint-initdb.d/10-crear-base-de-datos.sql:ro
+    healthcheck:
+      # La API aplica migraciones nada más arrancar, así que no puede salir antes que esto.
+      test: ["CMD", "mysqladmin", "ping", "--host=127.0.0.1", "--user=root", "--password=${MYSQL_ROOT_PASSWORD:-root123}", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: estacionamiento-web
+    container_name: estacionamiento-web
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        # No basta con que el contenedor exista: el primer arranque de MySQL inicializa el
+        # directorio de datos y tarda. Sin esperar a que esté sano, la API muere aplicando
+        # migraciones contra un puerto que todavía no acepta conexiones.
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      # El doble guión bajo es cómo ASP.NET Core anida secciones de configuración: esto pisa
+      # "Persistencia:CadenaDeConexion" de appsettings.json sin tocar el archivo.
+      # "mysql" es el nombre del servicio y lo resuelve la red interna de Compose.
+      Persistencia__Proveedor: MySql
+      Persistencia__CadenaDeConexion: >-
+        Server=mysql;Port=3306;Database=estacionamiento;
+        User Id=root;Password=${MYSQL_ROOT_PASSWORD:-root123};
+      # Declarada en lugar de autodetectada: detectarla cuesta una conexión de sondeo en cada
+      # arranque. Si se cambia la etiqueta de la imagen de MySQL, hay que cambiarla aquí también.
+      Persistencia__VersionDelServidor: "8.4.0"
+      Persistencia__EstrategiaDeEsquema: Migraciones
+      # Datos de demostración al arrancar. 0 los desactiva; SEMBRAR=100 puebla la base con un
+      # padrón realista la primera vez. No hace nada si la base ya tiene vehículos, así que
+      # dejarlo puesto no reconstruye los datos en cada reinicio.
+      Siembra__Cantidad: ${SEMBRAR:-0}
+      Siembra__Reiniciar: ${SEMBRAR_REINICIAR:-false}
+    ports:
+      # 5209 fuera, 8080 dentro. El de dentro es el que trae la imagen de Microsoft desde .NET 8
+      # (antes era el 80) y no se toca: es privado del contenedor y lo que espera cualquier
+      # orquestador. El de fuera es el mismo que usa "dotnet run" en el anfitrión, para que la
+      # URL no cambie según cómo se ejecute.
+      - "${PUERTO_WEB:-5209}:8080"
+    volumes:
+      # Lo que POST /api/cierre/informe escriba en /informes aparece aquí fuera, en ./informes.
+      - ./informes:/informes
+
+volumes:
+  datos-mysql:
+    name: estacionamiento-datos-mysql
