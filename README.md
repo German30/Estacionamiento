@@ -103,23 +103,26 @@ Para conectar MySQL Workbench a la base del contenedor: `127.0.0.1:3307`, usuari
 
 ### Puertos
 
-Dentro y fuera del contenedor no es el mismo número, y conviene saber por qué:
+El mismo número a los dos lados del contenedor, y conviene saber por qué:
 
 ```
-anfitrión :5209  ->  contenedor :8080
+anfitrión :5209  ->  contenedor :5209
 ```
 
-**Dentro, el 8080.** No es una elección de este proyecto: es el valor que trae la imagen
-`mcr.microsoft.com/dotnet/aspnet:8.0` de Microsoft en `ASPNETCORE_HTTP_PORTS`. Hasta .NET 6 era
-el 80; cambió en .NET 8 porque desde entonces las imágenes se ejecutan **sin privilegios**, y en
-Linux los puertos por debajo de 1024 requieren root. Se deja como está: es privado del
-contenedor y es lo que espera cualquier orquestador de una imagen de .NET 8.
+**Dentro, el 5209.** La imagen `mcr.microsoft.com/dotnet/aspnet:9.0` de Microsoft trae el 8080
+en `ASPNETCORE_HTTP_PORTS` —hasta .NET 6 era el 80; cambió en .NET 8 porque desde entonces las
+imágenes se ejecutan **sin privilegios**, y en Linux los puertos por debajo de 1024 requieren
+root—, pero el `Dockerfile` lo pisa con el 5209 para que el puerto no dependa de cómo se lance
+la API. Cualquier número por encima de 1024 vale, precisamente porque el proceso no es root.
 
-> No confundir con el 8080 de Tomcat. Coinciden por casualidad; aquí no hay nada de Java.
+> Cambiarlo son cuatro sitios, y los cuatro tienen que ir juntos: `ASPNETCORE_HTTP_PORTS`,
+> `EXPOSE` y el `HEALTHCHECK` del `Dockerfile`, más el destino del mapeo de `compose.yaml`.
+> Si el mapeo apunta a otro puerto el fallo es traicionero: el healthcheck comprueba el puerto
+> desde dentro del contenedor, así que Docker marca el servicio como `healthy` mientras que
+> desde fuera no responde nadie.
 
-**Fuera, el 5209.** Ése sí es elección de este repositorio, y es el mismo que usa
-`dotnet run` en el anfitrión, para que la URL no cambie según cómo se ejecute la API. Se cambia
-sin reconstruir nada:
+**Fuera, el 5209.** Es el mismo que usa `dotnet run` en el anfitrión, para que la URL no cambie
+según cómo se ejecute la API. Se cambia sin reconstruir nada:
 
 ```bash
 PUERTO_WEB=9000 docker compose up -d      # http://localhost:9000/swagger
@@ -133,7 +136,7 @@ publica dentro de la imagen. En el contenedor no interviene.
 |---|---|---|
 | `docker compose up` | `http://localhost:5209` | `PUERTO_WEB` en `compose.yaml` |
 | `dotnet run` en el anfitrión | `http://localhost:5209` | `Properties/launchSettings.json` |
-| Dentro del contenedor | `http://+:8080` | `ASPNETCORE_HTTP_PORTS` de la imagen base |
+| Dentro del contenedor | `http://+:5209` | `ASPNETCORE_HTTP_PORTS` en el `Dockerfile` |
 
 ## La API
 
@@ -427,6 +430,6 @@ consume, y no debe moverse porque el dominio se reorganice por dentro.
 
 Con Docker basta con Docker Desktop. Para ejecutar en el anfitrión:
 
-- .NET SDK 8.0 o superior
+- .NET SDK 9.0 (lo fija `global.json`)
 - MySQL 8.x en `127.0.0.1:3306`
 - `dotnet-ef` sólo si se van a generar migraciones: `dotnet tool install --global dotnet-ef`

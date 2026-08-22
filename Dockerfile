@@ -5,7 +5,7 @@
 # Compilación en dos etapas: el SDK (~800 MB) se queda en la etapa de compilación y la imagen
 # final sólo lleva el runtime de ASP.NET más los binarios publicados.
 
-ARG VERSION_DOTNET=8.0
+ARG VERSION_DOTNET=9.0
 
 # ---------------------------------------------------------------------------------------------
 # Etapa 1: compilar y publicar
@@ -17,6 +17,11 @@ WORKDIR /origen
 # Primero sólo los .csproj. Mientras no cambien las dependencias, Docker reutiliza la capa del
 # restore: editar código no vuelve a bajar NuGet. Se copian uno a uno, y no con un comodín,
 # porque un comodín arrastraría también la consola y las pruebas, que no forman parte de la API.
+
+# La misma versión de SDK que fuera del contenedor. Si la imagen trajera un SDK de otra línea,
+# el restore falla aquí y no en producción con un binario compilado contra otra cosa.
+COPY global.json ./
+
 COPY src/Estacionamiento.Dominio/Estacionamiento.Dominio.csproj                  src/Estacionamiento.Dominio/
 COPY src/Estacionamiento.Aplicacion/Estacionamiento.Aplicacion.csproj            src/Estacionamiento.Aplicacion/
 COPY src/Estacionamiento.Infraestructura/Estacionamiento.Infraestructura.csproj  src/Estacionamiento.Infraestructura/

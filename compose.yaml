@@ -73,11 +73,13 @@ services:
       Siembra__Cantidad: ${SEMBRAR:-0}
       Siembra__Reiniciar: ${SEMBRAR_REINICIAR:-false}
     ports:
-      # 5209 fuera, 8080 dentro. El de dentro es el que trae la imagen de Microsoft desde .NET 8
-      # (antes era el 80) y no se toca: es privado del contenedor y lo que espera cualquier
-      # orquestador. El de fuera es el mismo que usa "dotnet run" en el anfitrión, para que la
-      # URL no cambie según cómo se ejecute.
-      - "${PUERTO_WEB:-5209}:8080"
+      # 5209 a los dos lados. El Dockerfile pisa con 5209 el 8080 que trae la imagen de Microsoft
+      # —lo fija en ASPNETCORE_HTTP_PORTS y lo repite en EXPOSE y en el HEALTHCHECK—, así que el
+      # destino del mapeo tiene que ser 5209. Publicar el 8080 deja el peor de los fallos: el
+      # healthcheck consulta el puerto desde dentro y marca el servicio sano, mientras que por
+      # fuera no atiende nadie. El de fuera es además el mismo que usa "dotnet run" en el
+      # anfitrión, para que la URL no cambie según cómo se ejecute.
+      - "${PUERTO_WEB:-5209}:5209"
     volumes:
       # Lo que POST /api/cierre/informe escriba en /informes aparece aquí fuera, en ./informes.
       - ./informes:/informes
