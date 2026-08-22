@@ -1,0 +1,300 @@
+// Vocabulario compartido de controles.
+//
+// Vive en el ámbito global a propósito: un botón de guardar que se ve distinto en dos pantallas
+// significa que uno de los dos está mal. Los estilos propios de cada pantalla sí van encapsulados
+// en su componente.
+
+// ── Botones ───────────────────────────────────────────────────────────────────
+
+.boton {
+  --_fondo: var(--papel-alto);
+  --_texto: var(--tinta);
+  --_borde: var(--papel-borde);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e2);
+  min-height: 38px;
+  padding: 0 var(--e4);
+  border: 1px solid var(--_borde);
+  border-radius: var(--canto-caja);
+  background: var(--_fondo);
+  color: var(--_texto);
+  font-size: var(--t-base);
+  font-weight: var(--peso-fuerte);
+  font-variation-settings: "wdth" var(--ancho-normal);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--relieve-1);
+  transition:
+    background-color var(--paso) var(--curva),
+    border-color var(--paso) var(--curva),
+    box-shadow var(--paso) var(--curva),
+    transform var(--paso) var(--curva);
+}
+
+.boton:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--_fondo) 92%, var(--tinta));
+  box-shadow: var(--relieve-2);
+}
+
+.boton:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: var(--hundido);
+}
+
+.boton:disabled {
+  cursor: not-allowed;
+  color: var(--tinta-fantasma);
+  background: var(--papel-hondo);
+  border-color: var(--papel-borde-tenue);
+  box-shadow: none;
+}
+
+.boton--principal {
+  --_fondo: var(--verde);
+  --_texto: #f4f5f0;
+  --_borde: var(--verde-hondo);
+}
+
+// El rojo de sello sólo aquí: acciones que no se pueden deshacer.
+.boton--sello {
+  --_fondo: var(--sello);
+  --_texto: #f7f4f2;
+  --_borde: var(--sello-hondo);
+}
+
+.boton--sello:focus-visible {
+  box-shadow: var(--anillo-sello);
+}
+
+.boton--fantasma {
+  --_fondo: transparent;
+  --_borde: transparent;
+
+  box-shadow: none;
+}
+
+.boton--fantasma:hover:not(:disabled) {
+  background: var(--papel-hondo);
+}
+
+.boton--grande {
+  min-height: 60px;
+  padding: 0 var(--e5);
+  font-size: var(--t-mayor);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.boton--menudo {
+  min-height: 30px;
+  padding: 0 var(--e3);
+  font-size: var(--t-menor);
+}
+
+// Estado de carga: el rótulo se queda en su sitio y una barra recorre el canto inferior. Nada
+// de girar un aspa encima del texto que el operador está leyendo.
+.boton[data-cargando="si"] {
+  position: relative;
+  overflow: hidden;
+  cursor: progress;
+}
+
+.boton[data-cargando="si"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  background: currentcolor;
+  opacity: 0.55;
+  animation: recorre 900ms var(--curva) infinite;
+}
+
+@keyframes recorre {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+// ── Campos ────────────────────────────────────────────────────────────────────
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+}
+
+.campo__control {
+  width: 100%;
+  min-height: 38px;
+  padding: var(--e2) var(--e3);
+  border: 1px solid var(--papel-borde);
+  border-radius: var(--canto-caja);
+  background: var(--papel-alto);
+  box-shadow: var(--hundido);
+  transition:
+    border-color var(--paso) var(--curva),
+    box-shadow var(--paso) var(--curva);
+}
+
+.campo__control::placeholder {
+  color: var(--tinta-tenue);
+}
+
+.campo__control:hover:not(:disabled) {
+  border-color: var(--tinta-fantasma);
+}
+
+.campo__control:disabled {
+  background: var(--papel-hondo);
+  color: var(--tinta-fantasma);
+  cursor: not-allowed;
+}
+
+.campo__control[aria-invalid="true"] {
+  border-color: var(--sello);
+  box-shadow: var(--hundido), 0 0 0 1px var(--sello);
+}
+
+.campo__nota {
+  font-size: var(--t-menor);
+  color: var(--tinta-tenue);
+}
+
+.campo__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e2);
+  font-size: var(--t-menor);
+  font-weight: var(--peso-medio);
+  color: var(--sello-hondo);
+}
+
+// ── Hoja: la superficie de papel levantado que sostiene una sección ───────────
+
+.hoja {
+  background: var(--papel-alto);
+  border: 1px solid var(--papel-borde-tenue);
+  border-radius: var(--canto-caja);
+  box-shadow: var(--relieve-1);
+}
+
+.hoja__cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e4);
+  padding: var(--e3) var(--e4);
+  border-bottom: 1px solid var(--papel-borde-tenue);
+  background: var(--papel-hondo);
+  border-radius: var(--canto-caja) var(--canto-caja) 0 0;
+}
+
+.hoja__cuerpo {
+  padding: var(--e4);
+}
+
+// ── Registro: la tabla rayada del padrón ─────────────────────────────────────
+
+.registro {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-densa);
+}
+
+.registro thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: var(--e2) var(--e3);
+  background: var(--papel-hondo);
+  border-bottom: 1px solid var(--papel-borde);
+  font-size: var(--t-micro);
+  font-weight: var(--peso-duro);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tinta-media);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.registro tbody td {
+  padding: var(--e2) var(--e3);
+  border-bottom: 1px solid var(--papel-borde-tenue);
+  vertical-align: middle;
+}
+
+.registro tbody tr:nth-child(even) td {
+  background: color-mix(in oklab, var(--papel-hondo) 45%, transparent);
+}
+
+.registro tbody tr:hover td {
+  background: var(--verde-vela);
+}
+
+.registro .num {
+  font-family: var(--letra-medida);
+  font-size: var(--t-menor);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.registro th.num {
+  text-align: right;
+}
+
+// ── Estado vacío y esqueleto ──────────────────────────────────────────────────
+
+.vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e3);
+  padding: var(--e8) var(--e5);
+  text-align: center;
+  color: var(--tinta-media);
+}
+
+.vacio__titulo {
+  font-size: var(--t-mayor);
+  font-weight: var(--peso-fuerte);
+  color: var(--tinta);
+}
+
+.vacio__nota {
+  max-width: 46ch;
+  font-size: var(--t-base);
+  text-wrap: pretty;
+}
+
+.hueso {
+  border-radius: var(--canto);
+  background: linear-gradient(
+    100deg,
+    var(--papel-hondo) 30%,
+    color-mix(in oklab, var(--papel-hondo) 55%, var(--papel-alto)) 50%,
+    var(--papel-hondo) 70%
+  );
+  background-size: 220% 100%;
+  animation: barrido 1.4s ease-in-out infinite;
+}
+
+@keyframes barrido {
+  from {
+    background-position: 130% 0;
+  }
+
+  to {
+    background-position: -30% 0;
+  }
+}

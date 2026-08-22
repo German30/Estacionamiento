@@ -1,0 +1,36 @@
+# Todo lo que no necesita la imagen del front. Cuanto menos viaje al demonio de Docker, más
+# rápido arranca la compilación y menos capas se invalidan sin motivo.
+
+# Dependencias y resultados de compilación: la imagen los reconstruye desde cero, y node_modules
+# del anfitrión trae binarios compilados para Windows que no sirven dentro de una imagen Linux.
+node_modules/
+dist/
+out-tsc/
+.angular/
+
+# Las pruebas se ejecutan con `npm test`, no dentro de la imagen. tsconfig.spec.json tampoco
+# entra: la etapa de compilación copia únicamente tsconfig.app.json.
+**/*.spec.ts
+tsconfig.spec.json
+karma.conf.js
+
+# Control de versiones y herramientas del editor
+.git/
+.gitignore
+.gitattributes
+.vscode/
+.idea/
+.editorconfig
+
+# El propio andamiaje de Docker: cambiarlo no debe invalidar la capa del código.
+Dockerfile
+compose.yaml
+docker-compose*.yml
+.dockerignore
+
+# Sólo lo usa `ng serve`. Dentro del contenedor el reenvío a la API lo hace nginx.
+proxy.conf.json
+
+# Artefactos del trabajo de diseño y documentación del proyecto
+.impeccable/
+*.md

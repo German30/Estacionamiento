@@ -1,0 +1,253 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+// ── Cabecera de registro ──────────────────────────────────────────────────────
+// No es una barra lateral con rejilla de tarjetas. Es el encabezado de un formulario oficial:
+// el cuño a la izquierda, las dos zonas separadas por un hueco estructural.
+
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--papel-hondo);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.barra__interior {
+  display: flex;
+  align-items: stretch;
+  gap: var(--e6);
+  max-width: 1560px;
+  margin-inline: auto;
+  padding: var(--e2) var(--e5);
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  padding-right: var(--e5);
+  color: var(--tinta);
+  text-decoration: none;
+  border-right: 1px solid var(--papel-borde);
+}
+
+.marca__cuno {
+  width: 30px;
+  height: 30px;
+  color: var(--verde-hondo);
+}
+
+.marca__texto {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.marca__nombre {
+  font-size: var(--t-mayor);
+  font-weight: var(--peso-duro);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.marca__pie {
+  font-size: var(--t-micro);
+  font-weight: var(--peso-medio);
+  letter-spacing: 0.06em;
+  color: var(--tinta-tenue);
+}
+
+// Las dos zonas, con un hueco duro entre ellas y un rótulo troquelado encima de cada una.
+.zonas {
+  display: flex;
+  align-items: stretch;
+  gap: var(--e7);
+  flex: 1;
+  min-width: 0;
+}
+
+.zona {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e1);
+  justify-content: center;
+}
+
+.zona + .zona {
+  position: relative;
+}
+
+.zona + .zona::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--e7) / -2);
+  top: var(--e2);
+  bottom: var(--e2);
+  width: 1px;
+  background: var(--papel-borde);
+}
+
+.zona__rotulo {
+  padding-inline: var(--e2);
+}
+
+.zona__lista {
+  display: flex;
+  gap: var(--e1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.via {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  padding: var(--e1) var(--e3);
+  border-radius: var(--canto-caja);
+  border: 1px solid transparent;
+  color: var(--tinta-media);
+  font-size: var(--t-base);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--paso) var(--curva),
+    color var(--paso) var(--curva),
+    border-color var(--paso) var(--curva);
+}
+
+.via ec-icono {
+  --icono-tamano: 1.05rem;
+
+  color: var(--tinta-tenue);
+  transition: color var(--paso) var(--curva);
+}
+
+.via:hover {
+  background: var(--papel-alto);
+  color: var(--tinta);
+}
+
+.via:hover ec-icono {
+  color: var(--tinta-media);
+}
+
+.via.es-actual {
+  background: var(--verde-vela);
+  border-color: var(--verde-borde);
+  color: var(--verde-hondo);
+  font-weight: var(--peso-fuerte);
+}
+
+.via.es-actual ec-icono {
+  color: var(--verde);
+}
+
+// ── Estado de contacto ────────────────────────────────────────────────────────
+
+.contacto {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  align-self: center;
+  font-size: var(--t-menor);
+  color: var(--tinta-media);
+  white-space: nowrap;
+}
+
+.contacto__pin {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--tinta-fantasma);
+}
+
+.contacto[data-estado="en-linea"] .contacto__pin {
+  background: var(--verde);
+}
+
+.contacto[data-estado="sin-contacto"] .contacto__pin {
+  background: var(--sello);
+}
+
+.contacto[data-estado="sin-contacto"] {
+  color: var(--sello-hondo);
+  font-weight: var(--peso-medio);
+}
+
+.corte-de-servicio {
+  max-width: 1560px;
+  margin-inline: auto;
+  padding: var(--e4) var(--e5) 0;
+  width: 100%;
+}
+
+// ── Contenido ─────────────────────────────────────────────────────────────────
+
+.contenido {
+  flex: 1;
+  width: 100%;
+  max-width: 1560px;
+  margin-inline: auto;
+  padding: var(--e5);
+}
+
+.contenido:focus-visible {
+  box-shadow: none;
+}
+
+// ── Adaptación ────────────────────────────────────────────────────────────────
+// Estructural, no tipográfica: la escala de texto no se mueve, la composición sí.
+
+@media (width < 1100px) {
+  .barra__interior {
+    flex-wrap: wrap;
+    gap: var(--e4);
+    padding-inline: var(--e4);
+  }
+
+  .marca {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .contacto {
+    margin-left: auto;
+  }
+
+  .zonas {
+    order: 3;
+    flex-basis: 100%;
+    gap: var(--e5);
+    overflow-x: auto;
+    padding-bottom: var(--e1);
+  }
+
+  .zona + .zona::before {
+    left: calc(var(--e5) / -2);
+  }
+
+  .contenido {
+    padding: var(--e4);
+  }
+}
+
+@media (width < 560px) {
+  .marca__nombre {
+    font-size: var(--t-base);
+  }
+
+  .contacto__texto {
+    display: none;
+  }
+
+  .contenido {
+    padding: var(--e3);
+  }
+}

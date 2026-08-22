@@ -1,0 +1,271 @@
+:host {
+  display: block;
+}
+
+.titulo {
+  font-size: var(--t-titulo);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: var(--e5);
+}
+
+.cargando {
+  display: grid;
+  gap: var(--e4);
+  max-width: 1100px;
+}
+
+// Bloques de documento separados por huecos duros y rótulos troquelados: nada de una rejilla
+// de tarjetas del mismo tamaño haciendo de estructura de página.
+// Colocación explícita: sin ella, «Residentes a fin de mes» caía a la columna izquierda y
+// dejaba media página vacía a la derecha. La izquierda sostiene la composición del padrón; la
+// derecha, las dos lecturas de dinero.
+.panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  grid-template-areas:
+    "ocupacion ocupacion"
+    "composicion hoy"
+    "composicion mes";
+  align-content: start;
+  gap: var(--e7) var(--e6);
+  max-width: 1180px;
+}
+
+.ocupacion {
+  grid-area: ocupacion;
+}
+
+.bloque--composicion {
+  grid-area: composicion;
+}
+
+.bloque--hoy {
+  grid-area: hoy;
+}
+
+.bloque--mes {
+  grid-area: mes;
+}
+
+.rotulo {
+  padding-bottom: var(--e2);
+}
+
+// ── Ocupación ─────────────────────────────────────────────────────────────────
+
+.ocupacion {
+  padding-bottom: var(--e5);
+  border-bottom: 2px solid var(--tinta);
+}
+
+.ocupacion__cifra {
+  display: flex;
+  align-items: baseline;
+  gap: var(--e3);
+  flex-wrap: wrap;
+}
+
+.ocupacion__dentro {
+  font-family: var(--letra-medida);
+  font-size: var(--t-cobro);
+  font-weight: var(--peso-duro);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--verde-hondo);
+}
+
+.ocupacion__de {
+  font-size: var(--t-mayor);
+  color: var(--tinta-media);
+}
+
+// Acotada: un raíl de 1100 px para un relleno del 5 % se lee como un error de dibujo, no como
+// una proporción.
+.ocupacion__barra {
+  max-width: 560px;
+  margin-top: var(--e4);
+  height: 14px;
+  border: 1px solid var(--papel-borde);
+  border-radius: 1px;
+  background: var(--papel-hondo);
+  overflow: hidden;
+}
+
+// Escalado, no ensanchado: animar width provoca un rediseño por cuadro.
+.ocupacion__parte {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(var(--parte, 0));
+  transform-origin: left center;
+  background: var(--verde);
+  transition: transform var(--paso-largo) var(--curva);
+}
+
+.ocupacion__via {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e2);
+  margin-top: var(--e4);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  color: var(--verde-hondo);
+}
+
+.ocupacion__via ec-icono {
+  --icono-tamano: 1.1rem;
+}
+
+.ocupacion__via:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+// ── Bloques ───────────────────────────────────────────────────────────────────
+
+.bloque {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bloque__rotulo {
+  border-bottom: 1px solid var(--papel-borde);
+  margin-bottom: var(--e3);
+}
+
+.bloque__nota {
+  max-width: 46ch;
+  margin-top: var(--e3);
+  font-size: var(--t-menor);
+  line-height: 1.55;
+  color: var(--tinta-media);
+}
+
+.bloque .boton {
+  align-self: flex-start;
+  margin-top: var(--e4);
+}
+
+// ── Composición del padrón ────────────────────────────────────────────────────
+
+.clases {
+  display: grid;
+  gap: var(--e3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.clase {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "nombre cantidad"
+    "pista pista"
+    "tarifa tarifa";
+  gap: var(--e1) var(--e3);
+  padding-bottom: var(--e3);
+  border-bottom: 1px solid var(--papel-borde-tenue);
+}
+
+.clase__nombre {
+  grid-area: nombre;
+  font-weight: var(--peso-fuerte);
+  color: var(--_tinta);
+}
+
+.clase__cantidad {
+  grid-area: cantidad;
+  font-family: var(--letra-medida);
+  font-weight: var(--peso-duro);
+}
+
+.clase__pista {
+  grid-area: pista;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--papel-hondo);
+  overflow: hidden;
+}
+
+.clase__parte {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(var(--parte, 0));
+  transform-origin: left center;
+  background: var(--_tinta);
+  transition: transform var(--paso-largo) var(--curva);
+}
+
+.clase__tarifa {
+  grid-area: tarifa;
+  font-size: var(--t-menor);
+  color: var(--tinta-tenue);
+}
+
+.clase[data-clase="oficial"] {
+  --_tinta: var(--clase-oficial);
+}
+
+.clase[data-clase="residente"] {
+  --_tinta: var(--clase-residente);
+}
+
+.clase[data-clase="no-residente"] {
+  --_tinta: var(--clase-no-residente);
+}
+
+// ── Renglones de cifras ───────────────────────────────────────────────────────
+
+.renglones {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.renglon {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e4);
+  padding: var(--e3) 0;
+  border-bottom: 1px solid var(--papel-borde-tenue);
+}
+
+.renglon dt {
+  color: var(--tinta-media);
+}
+
+.renglon__valor {
+  margin: 0;
+  font-family: var(--letra-medida);
+  font-size: var(--t-mayor);
+  font-weight: var(--peso-fuerte);
+  white-space: nowrap;
+}
+
+.renglon__valor--importe {
+  color: var(--verde-hondo);
+}
+
+// ── Adaptación ────────────────────────────────────────────────────────────────
+
+@media (width < 860px) {
+  .panel {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "ocupacion"
+      "composicion"
+      "hoy"
+      "mes";
+    gap: var(--e6);
+  }
+
+  .ocupacion__dentro {
+    font-size: var(--t-placa);
+  }
+}

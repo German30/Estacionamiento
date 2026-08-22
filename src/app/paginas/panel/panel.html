@@ -1,0 +1,104 @@
+<h1 class="titulo">Panel</h1>
+
+@if (problema(); as fallo) {
+  <ec-aviso [problema]="fallo" [conReintento]="true" (reintentar)="cargar()" />
+} @else if (cargando()) {
+  <div class="cargando">
+    <div class="hueso" style="height: 96px"></div>
+    <div class="hueso" style="height: 220px"></div>
+    <div class="hueso" style="height: 220px"></div>
+  </div>
+} @else if (datos(); as d) {
+  <div class="panel">
+    <!-- Ocupación: una proporción del padrón, medida contra una escala visible. Una cifra
+         suelta con un icono al lado no dice si veintitrés vehículos son muchos o pocos. -->
+    <section class="ocupacion" aria-labelledby="tit-ocupacion">
+      <h2 class="rotulo" id="tit-ocupacion">Ocupación ahora mismo</h2>
+
+      <p class="ocupacion__cifra">
+        <span class="ocupacion__dentro">{{ entero(d.vehiculosDentro) }}</span>
+        <span class="ocupacion__de">de {{ entero(d.totalDeVehiculos) }} en el padrón</span>
+      </p>
+
+      <div
+        class="ocupacion__barra"
+        role="meter"
+        [attr.aria-valuenow]="d.vehiculosDentro"
+        aria-valuemin="0"
+        [attr.aria-valuemax]="d.totalDeVehiculos"
+        [attr.aria-label]="'Vehículos dentro sobre el total del padrón'"
+      >
+        <span class="ocupacion__parte" [style.--parte]="ocupacion()"></span>
+      </div>
+
+      <a class="ocupacion__via" routerLink="/caseta">
+        <ec-icono nombre="entrada" />
+        Ir a la caseta
+      </a>
+    </section>
+
+    <section class="bloque bloque--composicion" aria-labelledby="tit-composicion">
+      <h2 class="rotulo bloque__rotulo" id="tit-composicion">Composición del padrón</h2>
+
+      <ul class="clases">
+        @for (clase of clases(); track clase.clave) {
+          <li class="clase" [attr.data-clase]="clase.clave">
+            <span class="clase__nombre">{{ clase.nombre }}</span>
+            <span class="clase__cantidad">{{ entero(clase.cantidad) }}</span>
+            <span class="clase__pista" aria-hidden="true">
+              <span class="clase__parte" [style.--parte]="clase.parte"></span>
+            </span>
+            <span class="clase__tarifa">{{ clase.tarifa }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="bloque bloque--hoy" aria-labelledby="tit-hoy">
+      <h2 class="rotulo bloque__rotulo" id="tit-hoy">Hoy</h2>
+
+      <dl class="renglones">
+        <div class="renglon">
+          <dt>Salidas registradas</dt>
+          <dd class="renglon__valor">{{ entero(d.salidasDeHoy) }}</dd>
+        </div>
+        <div class="renglon">
+          <dt>Cobrado en la pluma</dt>
+          <dd class="renglon__valor renglon__valor--importe">{{ pesos(d.cobradoHoy) }}</dd>
+        </div>
+      </dl>
+
+      <p class="bloque__nota">
+        Sólo los no residentes pagan al salir. Lo que deben los residentes se liquida a fin de mes
+        y no aparece en esta cifra.
+      </p>
+    </section>
+
+    <section class="bloque bloque--mes" aria-labelledby="tit-mes">
+      <h2 class="rotulo bloque__rotulo" id="tit-mes">Residentes, a fin de mes</h2>
+
+      <dl class="renglones">
+        <div class="renglon">
+          <dt>Tiempo acumulado</dt>
+          <dd class="renglon__valor">{{ duracion(d.minutosAcumuladosDeResidentes) }}</dd>
+        </div>
+        <div class="renglon">
+          <dt>Saldo pendiente</dt>
+          <dd class="renglon__valor renglon__valor--importe">
+            {{ pesos(d.saldoPendienteDeResidentes) }}
+          </dd>
+        </div>
+      </dl>
+
+      <p class="bloque__nota">
+        Es lo que se cobra al cerrar el mes. Descargá el informe antes de comenzar mes: el cierre
+        pone los contadores a cero y no se puede deshacer.
+      </p>
+
+      <a class="boton" routerLink="/cierre">
+        <ec-icono nombre="cierre" />
+        Ver el informe de pagos
+      </a>
+    </section>
+  </div>
+}

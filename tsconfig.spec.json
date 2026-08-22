@@ -1,0 +1,24 @@
+/* Programa de pruebas: los .spec.ts más el código de aplicación que ejercitan.
+   Hereda de ./tsconfig.json, así que las pruebas se tipan con el mismo rigor que la aplicación
+   —una prueba que compila más flojo que el código que verifica no verifica gran cosa.
+   https://angular.dev/reference/configs/angular-compiler-options */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    /* Explícito: TypeScript 6 deja de deducirlo del conjunto de archivos, y sin esto el
+       diseño de la carpeta de salida cambiaría al agregar o quitar un archivo. */
+    "rootDir": "./src",
+    /* Jasmine sí va como tipo global: describe, it y expect no se importan.
+       Nada de @types/node acá tampoco, por lo mismo que en tsconfig.app.json. */
+    "types": [
+      "jasmine"
+    ]
+  },
+  /* Sin `exclude`: el programa abarca src/ entero a propósito, porque los .spec.ts importan el
+     código que prueban. src/main.ts entra también; sólo se tipa, nunca se ejecuta —Karma
+     descubre los .spec.ts por su cuenta. */
+  "include": [
+    "src/**/*.ts"
+  ]
+}

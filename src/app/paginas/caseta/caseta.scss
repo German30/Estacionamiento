@@ -1,0 +1,386 @@
+:host {
+  display: block;
+}
+
+.caseta {
+  display: grid;
+  grid-template-columns: minmax(420px, 5fr) minmax(460px, 7fr);
+  gap: var(--e6);
+  align-items: start;
+}
+
+.titulo {
+  font-size: var(--t-titulo);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: var(--e4);
+}
+
+// ── Captura ───────────────────────────────────────────────────────────────────
+
+.captura {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.campo--placa {
+  gap: var(--e2);
+}
+
+// El campo es la placa: mismo eje expandido, mismo troquel. Lo que el operador teclea ya se
+// parece a lo que va a quedar registrado.
+.entrada-de-placa {
+  width: 100%;
+  padding: var(--e3) var(--e4);
+  border: 2.5px solid var(--tinta);
+  border-radius: var(--canto-placa);
+  background: var(--papel-alto);
+  box-shadow: inset 0 0 0 2.5px var(--papel-alto), var(--hundido);
+  font-size: var(--t-placa);
+  font-weight: var(--peso-duro);
+  font-variation-settings: "wdth" var(--ancho-ancho);
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  transition: box-shadow var(--paso) var(--curva), border-color var(--paso) var(--curva);
+}
+
+.entrada-de-placa::placeholder {
+  color: var(--tinta-fantasma);
+  text-transform: uppercase;
+}
+
+.entrada-de-placa:focus-visible {
+  border-color: var(--verde-hondo);
+  box-shadow: inset 0 0 0 2.5px var(--papel-alto), var(--anillo);
+}
+
+.entrada-de-placa[aria-invalid="true"] {
+  border-color: var(--sello);
+}
+
+.normalizada {
+  font-family: var(--letra-medida);
+  font-weight: var(--peso-duro);
+  color: var(--verde-hondo);
+}
+
+// ── Las dos acciones ──────────────────────────────────────────────────────────
+// Sin jerarquía entre ellas por omisión: el operador no sabe de antemano cuál va a necesitar,
+// y teñir una de primaria le pondría el pulgar en la balanza. La propuesta sí se marca, porque
+// entonces sí hay una respuesta correcta deducible del estado.
+
+.acciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e3);
+  margin-top: var(--e4);
+}
+
+.accion {
+  position: relative;
+  gap: var(--e3);
+}
+
+.accion ec-icono {
+  --icono-tamano: 1.4rem;
+}
+
+.accion--propuesta {
+  --_fondo: var(--verde);
+  --_texto: #f4f5f0;
+  --_borde: var(--verde-hondo);
+}
+
+// Una tecla dibujada con tipografía, no el glifo Unicode del retorno de carro: Archivo no lo
+// trae y el navegador lo sustituye por una caja vacía.
+.accion__intro {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  padding: 0 4px;
+  border: 1px solid currentcolor;
+  border-radius: var(--canto);
+  font-family: var(--letra);
+  font-size: 9px;
+  font-weight: var(--peso-fuerte);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.06em;
+  text-transform: none;
+  line-height: 1.45;
+  opacity: 0.8;
+}
+
+.acciones__pie {
+  margin-top: var(--e2);
+  min-height: 1.35em;
+  font-size: var(--t-menor);
+  color: var(--tinta-tenue);
+}
+
+// ── Resultado ─────────────────────────────────────────────────────────────────
+
+.resultado {
+  margin-top: var(--e5);
+}
+
+.reposo {
+  display: grid;
+  gap: var(--e2);
+  padding: var(--e5);
+  border: 1px solid var(--papel-borde-tenue);
+  border-radius: var(--canto-caja);
+  background: var(--papel-hondo);
+  box-shadow: var(--hundido);
+}
+
+.reposo__texto {
+  max-width: 46ch;
+  font-size: var(--t-menor);
+  line-height: 1.55;
+  color: var(--tinta-tenue);
+}
+
+.cobro,
+.acuse {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+  padding: var(--e5);
+  border: 1px solid var(--papel-borde);
+  border-radius: var(--canto-caja);
+  background: var(--papel-alto);
+  box-shadow: var(--relieve-2);
+  animation: se-estampa var(--paso-largo) var(--curva);
+}
+
+// El único momento con movimiento propio de la aplicación: el acuse se estampa. Comunica
+// estado —«esto acaba de ocurrir»— y no decora nada.
+@keyframes se-estampa {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+    filter: blur(1.5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.cobro__cabeza,
+.acuse__cabeza {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e3);
+  flex-wrap: wrap;
+  padding-bottom: var(--e3);
+  border-bottom: 1px solid var(--papel-borde-tenue);
+}
+
+.cobro__cifra {
+  font-family: var(--letra-medida);
+  font-size: var(--t-cobro);
+  font-weight: var(--peso-duro);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: var(--verde-hondo);
+  overflow-wrap: anywhere;
+}
+
+.cobro[data-cobra="no"] .cobro__cifra {
+  font-family: var(--letra);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--tinta-media);
+}
+
+.cobro__razon {
+  max-width: 44ch;
+  font-size: var(--t-base);
+  color: var(--tinta-media);
+}
+
+.cobro__detalle {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: var(--e3);
+  margin-top: var(--e2);
+  padding-top: var(--e3);
+  border-top: 1px solid var(--papel-borde-tenue);
+}
+
+.cobro__detalle dt {
+  font-size: var(--t-micro);
+  font-weight: var(--peso-duro);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tinta-tenue);
+}
+
+.cobro__detalle dd {
+  margin: var(--e1) 0 0;
+  font-family: var(--letra-medida);
+  font-size: var(--t-base);
+  font-weight: var(--peso-medio);
+}
+
+.cobro__exacto {
+  margin-top: 1px;
+  font-size: var(--t-menor);
+  font-weight: var(--peso-normal);
+  color: var(--tinta-tenue);
+}
+
+.cobro__pie {
+  display: flex;
+  gap: var(--e2);
+  margin-top: var(--e2);
+}
+
+.acuse__linea {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  font-size: var(--t-mayor);
+  font-weight: var(--peso-medio);
+}
+
+.acuse__marca {
+  --icono-tamano: 1.3rem;
+
+  color: var(--verde);
+}
+
+// ── Registro de los que están dentro ─────────────────────────────────────────
+
+.registro-dentro {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hoja__titulo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--e2);
+  font-size: var(--t-base);
+  font-weight: var(--peso-duro);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.cuenta {
+  font-family: var(--letra-medida);
+  font-size: var(--t-menor);
+  font-weight: var(--peso-duro);
+  letter-spacing: 0;
+  color: var(--verde-hondo);
+  background: var(--verde-vela);
+  border: 1px solid var(--verde-borde);
+  border-radius: var(--canto-sello);
+  padding: 0 var(--e2);
+}
+
+.hoja__nota {
+  font-size: var(--t-menor);
+  color: var(--tinta-tenue);
+}
+
+.registro-dentro__aviso {
+  padding: var(--e4);
+}
+
+.registro-dentro__hueso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  padding: var(--e4);
+}
+
+.registro-dentro__tabla {
+  max-height: min(64dvh, 720px);
+  overflow: auto;
+}
+
+.col-escala {
+  width: 40%;
+  min-width: 180px;
+}
+
+.col-accion {
+  width: 1%;
+  text-align: right;
+}
+
+.enlace-placa {
+  display: inline-flex;
+  text-decoration: none;
+  border-radius: var(--canto-placa);
+}
+
+.registro tbody tr.es-resaltada td {
+  background: var(--verde-vela);
+  box-shadow: inset 2px 0 0 var(--verde);
+}
+
+// El botón de fila aparece al posarse o al enfocar, pero nunca se oculta al teclado.
+.col-accion .boton {
+  opacity: 0;
+  transition: opacity var(--paso) var(--curva);
+}
+
+.registro tbody tr:hover .col-accion .boton,
+.col-accion .boton:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .col-accion .boton {
+    opacity: 1;
+  }
+}
+
+// ── Adaptación ────────────────────────────────────────────────────────────────
+
+@media (width < 1180px) {
+  .caseta {
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+  }
+
+  .registro-dentro__tabla {
+    max-height: none;
+  }
+}
+
+@media (width < 620px) {
+  .entrada-de-placa {
+    font-size: var(--t-monto);
+    padding: var(--e2) var(--e3);
+  }
+
+  .acciones {
+    grid-template-columns: 1fr;
+  }
+
+  .cobro__cifra {
+    font-size: var(--t-placa);
+  }
+
+  .cobro,
+  .acuse {
+    padding: var(--e4);
+  }
+
+  .col-escala {
+    min-width: 140px;
+  }
+}

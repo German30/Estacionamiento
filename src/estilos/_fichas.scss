@@ -1,0 +1,126 @@
+// La única fuente de valores visuales del proyecto.
+//
+// Ningún componente escribe un color, un espacio o un tamaño a mano: todos leen de aquí. Es la
+// disciplina que donó la identidad paramétrica cuando la descartamos — una sola semilla deriva
+// paleta, ritmo y acento, y nada se estiliza por su cuenta.
+
+:root {
+  // ── Papel de seguridad ──────────────────────────────────────────────────────
+  // Fondo claro, no por costumbre: la caseta se opera bajo luz de día contra el cristal, y una
+  // pantalla oscura ahí es un espejo.
+  --papel: #e9ebe4;
+  --papel-alto: #f4f5f0; // superficie levantada: filas, campos, fichas
+  --papel-hondo: #dcdfd5; // superficie hundida: cabeceras de tabla, barra de zona
+  --papel-borde: #c8ccc0;
+  --papel-borde-tenue: #d8dbd0;
+
+  // ── Tinta de registro ───────────────────────────────────────────────────────
+  // Los cuatro escalones están medidos contra el fondo más exigente de la paleta
+  // (--papel-hondo). El más claro da 4.64:1, así que ningún texto de la interfaz —incluido el
+  // rótulo de un control deshabilitado— cae por debajo del mínimo de cuerpo.
+  --tinta: #131c18; // verdinegra, no negra
+  --tinta-media: #3f4a44;
+  --tinta-tenue: #525d57;
+  --tinta-fantasma: #58635c; // sólo para controles deshabilitados
+
+  // ── Verdigrís: estructura, acción primaria, selección ───────────────────────
+  --verde: #2f6b5e;
+  --verde-hondo: #1e4a40;
+  --verde-vivo: #3d8878;
+  --verde-vela: #e2ece8; // relleno de estado seleccionado
+  --verde-borde: #a9c8c0;
+
+  // ── Sello: exclusivo de lo irreversible y del error ─────────────────────────
+  // Si este color aparece en una decoración, el sistema está roto.
+  --sello: #a8322a;
+  --sello-hondo: #7d241e;
+  --sello-vela: #f7e6e3;
+  --sello-borde: #dcaea8;
+
+  // ── Ocre: clase «No residente» ──────────────────────────────────────────────
+  // Deliberadamente lejos del rojo de sello para que un no residente nunca se lea como alarma.
+  --ocre: #7f6218;
+  --ocre-vela: #f0ead6;
+  --ocre-borde: #cfc08c;
+
+  // ── Codificación de clase de vehículo ───────────────────────────────────────
+  // Semántica, no decorativa: es la única dimensión del padrón que cambia las reglas de cobro.
+  --clase-oficial: var(--tinta);
+  --clase-oficial-vela: #e0e2dc;
+  --clase-oficial-borde: #b9beb4;
+  --clase-residente: var(--verde);
+  --clase-residente-vela: var(--verde-vela);
+  --clase-residente-borde: var(--verde-borde);
+  --clase-no-residente: var(--ocre);
+  --clase-no-residente-vela: var(--ocre-vela);
+  --clase-no-residente-borde: var(--ocre-borde);
+
+  // ── Retícula ────────────────────────────────────────────────────────────────
+  // Base de 4px. Una sola medida gobierna toda la página; nada se alinea a ojo.
+  --e0: 2px;
+  --e1: 4px;
+  --e2: 8px;
+  --e3: 12px;
+  --e4: 16px;
+  --e5: 24px;
+  --e6: 32px;
+  --e7: 48px;
+  --e8: 64px;
+  --e9: 96px;
+
+  // ── Tipografía ──────────────────────────────────────────────────────────────
+  // Una familia variable en dos ejes. El mono aparece sólo donde hay medición: columnas de
+  // ancho fijo del informe, cifras tabulares y contadores de permanencia.
+  --letra: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --letra-medida: "Azeret Mono", ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, monospace;
+
+  // Escala fija, razón ~1.2. Nada de clamp: el operador mira siempre al mismo monitor.
+  --t-micro: 0.6875rem; // 11px — versalitas de plantilla
+  --t-menor: 0.75rem; // 12px
+  --t-densa: 0.8125rem; // 13px — filas de padrón
+  --t-base: 0.875rem; // 14px — cuerpo de interfaz
+  --t-lectura: 1rem; // 16px — prosa
+  --t-mayor: 1.1875rem; // 19px
+  --t-titulo: 1.4375rem; // 23px
+  --t-monto: 2rem; // 32px — cifras del panel
+  --t-placa: 2.75rem; // 44px — la placa como objeto
+  --t-cobro: 4rem; // 64px — el importe a cobrar, el momento de la verdad
+
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-fuerte: 600;
+  --peso-duro: 700;
+
+  --ancho-estrecho: 88;
+  --ancho-normal: 100;
+  --ancho-ancho: 118; // ejes de la placa troquelada
+
+  // ── Cantos ──────────────────────────────────────────────────────────────────
+  // Un documento de seguridad tiene cantos limpios. Los radios son mínimos y deliberados.
+  --canto: 2px;
+  --canto-caja: 3px;
+  --canto-placa: 6px;
+  --canto-sello: 999px; // sólo los sellos de clase son redondos, como un cuño
+
+  // ── Relieve ─────────────────────────────────────────────────────────────────
+  // Papel sobre papel: desplazamiento corto y difuminado suave, teñido de la tinta.
+  --relieve-1: 0 1px 2px rgb(19 28 24 / 0.07), 0 0 0 1px rgb(19 28 24 / 0.05);
+  --relieve-2: 0 2px 6px rgb(19 28 24 / 0.09), 0 1px 2px rgb(19 28 24 / 0.06);
+  --relieve-3: 0 8px 24px rgb(19 28 24 / 0.13), 0 2px 6px rgb(19 28 24 / 0.08);
+  --hundido: inset 0 1px 2px rgb(19 28 24 / 0.09);
+
+  // ── Movimiento ──────────────────────────────────────────────────────────────
+  // El operador está en flujo. Nadie espera una coreografía.
+  --paso: 160ms;
+  --paso-largo: 240ms;
+  --curva: cubic-bezier(0.16, 1, 0.3, 1); // salida exponencial
+
+  // ── Foco ────────────────────────────────────────────────────────────────────
+  // Visible sin buscarlo: en caseta la vista está en el coche, no en la pantalla.
+  --anillo: 0 0 0 2px var(--papel), 0 0 0 4px var(--verde);
+  --anillo-sello: 0 0 0 2px var(--papel), 0 0 0 4px var(--sello);
+
+  // ── Estructura ──────────────────────────────────────────────────────────────
+  --barra-alto: 56px;
+  --medida-prosa: 68ch;
+}

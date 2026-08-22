@@ -1,0 +1,239 @@
+:host {
+  display: block;
+}
+
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e2);
+  margin-bottom: var(--e4);
+  font-size: var(--t-menor);
+  font-weight: var(--peso-medio);
+  color: var(--tinta-media);
+  text-decoration: none;
+}
+
+.volver ec-icono {
+  --icono-tamano: 1rem;
+}
+
+.volver:hover {
+  color: var(--tinta);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.cargando {
+  display: grid;
+  gap: var(--e4);
+  max-width: 900px;
+}
+
+.fallo {
+  display: grid;
+  gap: var(--e3);
+  max-width: 720px;
+}
+
+.fallo__salida {
+  font-size: var(--t-menor);
+  color: var(--tinta-media);
+}
+
+.ficha {
+  display: grid;
+  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+  gap: var(--e6);
+  align-items: start;
+  max-width: 1180px;
+}
+
+// ── Encabezado ────────────────────────────────────────────────────────────────
+// El único sitio de la aplicación donde el guilloché se ve de verdad: es la cabecera del
+// documento, y ahí el grabado es la marca de que esto certifica algo.
+
+.encabezado {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--e5);
+  flex-wrap: wrap;
+  padding: var(--e5);
+  border: 1px solid var(--papel-borde);
+  border-radius: var(--canto-caja);
+  background: var(--papel-alto);
+}
+
+.encabezado__identidad {
+  display: flex;
+  align-items: center;
+  gap: var(--e4);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.encabezado__marcas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  align-items: flex-start;
+}
+
+.encabezado__alta {
+  font-size: var(--t-menor);
+  color: var(--tinta-tenue);
+}
+
+.estado {
+  font-size: var(--t-menor);
+  color: var(--tinta-tenue);
+}
+
+.estado--dentro {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+  color: var(--verde-hondo);
+  font-weight: var(--peso-fuerte);
+}
+
+.estado--dentro::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--verde);
+}
+
+// ── Columna izquierda ─────────────────────────────────────────────────────────
+
+.viva {
+  grid-column: 1;
+  display: grid;
+  gap: var(--e2);
+  padding: var(--e4);
+  border: 1px solid var(--verde-borde);
+  border-radius: var(--canto-caja);
+  background: var(--verde-vela);
+}
+
+.viva__desde {
+  font-size: var(--t-menor);
+  color: var(--verde-hondo);
+}
+
+.condiciones {
+  grid-column: 1;
+}
+
+.condiciones__rotulo,
+.historico__rotulo {
+  padding-bottom: var(--e2);
+  border-bottom: 1px solid var(--papel-borde);
+  margin-bottom: var(--e2);
+}
+
+.renglones {
+  display: grid;
+  margin: 0;
+}
+
+.renglon {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e4);
+  padding: var(--e3) 0;
+  border-bottom: 1px solid var(--papel-borde-tenue);
+}
+
+.renglon dt {
+  color: var(--tinta-media);
+  font-size: var(--t-menor);
+}
+
+.renglon dd {
+  margin: 0;
+  font-family: var(--letra-medida);
+  font-weight: var(--peso-medio);
+  text-align: right;
+}
+
+.renglon--destacado dd {
+  font-size: var(--t-mayor);
+  font-weight: var(--peso-duro);
+  color: var(--verde-hondo);
+}
+
+// ── Columna derecha ───────────────────────────────────────────────────────────
+
+.historico {
+  grid-column: 2;
+  grid-row: 2 / span 2;
+  min-width: 0;
+}
+
+.renglones--totales {
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e5);
+  margin-bottom: var(--e4);
+}
+
+.renglones--totales .renglon {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--e1);
+  border-bottom: 0;
+  padding: 0;
+}
+
+.renglones--totales dd {
+  text-align: left;
+}
+
+.historico__tabla {
+  overflow: hidden;
+  max-height: 620px;
+  overflow-y: auto;
+}
+
+.registro tbody tr.es-abierta td {
+  background: var(--verde-vela);
+  box-shadow: inset 3px 0 0 var(--verde);
+}
+
+.sin-dato {
+  color: var(--tinta-tenue);
+}
+
+// ── Adaptación ────────────────────────────────────────────────────────────────
+
+@media (width < 900px) {
+  .ficha {
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+  }
+
+  .viva,
+  .condiciones,
+  .historico {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .encabezado {
+    padding: var(--e4);
+  }
+
+  .historico__tabla {
+    max-height: none;
+  }
+}
+
+@media (width < 560px) {
+  .renglones--totales {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--e4);
+  }
+}

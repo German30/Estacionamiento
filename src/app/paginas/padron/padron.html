@@ -1,0 +1,319 @@
+<header class="cabeza">
+  <h1 class="titulo">Padrón</h1>
+
+  <button
+    type="button"
+    class="boton"
+    [attr.aria-expanded]="formularioAbierto()"
+    aria-controls="alta"
+    (click)="formularioAbierto.set(!formularioAbierto())"
+  >
+    <ec-icono nombre="mas" />
+    Dar de alta
+  </button>
+</header>
+
+<!-- Un alta no interrumpe nada ni necesita foco protegido, así que vive en la página y no en
+     un modal. Se abre encima del registro y lo empuja hacia abajo. -->
+@if (formularioAbierto()) {
+  <section class="alta hoja" id="alta" aria-labelledby="tit-alta">
+    <div class="hoja__cabeza">
+      <h2 class="rotulo" id="tit-alta">Alta de vehículo</h2>
+      <p class="alta__nota">Sólo se dan de alta oficiales y residentes</p>
+    </div>
+
+    <form class="alta__cuerpo" (submit)="darDeAlta($event)">
+      <fieldset class="clase-alta">
+        <legend class="rotulo">Clase</legend>
+
+        <label class="opcion">
+          <input
+            type="radio"
+            name="clase"
+            value="residente"
+            [checked]="claseDeAlta() === 'residente'"
+            (change)="claseDeAlta.set('residente')"
+          />
+          <span class="opcion__texto">
+            <strong>Residente</strong>
+            <span>MXN$0.05 / min, liquida a fin de mes</span>
+          </span>
+        </label>
+
+        <label class="opcion">
+          <input
+            type="radio"
+            name="clase"
+            value="oficial"
+            [checked]="claseDeAlta() === 'oficial'"
+            (change)="claseDeAlta.set('oficial')"
+          />
+          <span class="opcion__texto">
+            <strong>Oficial</strong>
+            <span>No paga nunca; sus estancias se registran para control</span>
+          </span>
+        </label>
+      </fieldset>
+
+      <div class="campo alta__campo">
+        <label class="rotulo" for="placa-alta">Número de placa</label>
+        <input
+          id="placa-alta"
+          class="campo__control alta__placa"
+          type="text"
+          autocomplete="off"
+          spellcheck="false"
+          maxlength="14"
+          placeholder="ABC1234"
+          [value]="placaDeAlta()"
+          [attr.aria-invalid]="problemaDeAlta() ? 'true' : null"
+          (input)="alEscribirAlta($event)"
+        />
+        <p class="campo__nota">
+          @if (placaDeAlta() && placaDeAlta() !== placaNormalizadaDeAlta()) {
+            Se va a registrar como <strong>{{ placaNormalizadaDeAlta() }}</strong>
+          } @else {
+            Entre 5 y 10 caracteres alfanuméricos
+          }
+        </p>
+      </div>
+
+      <button
+        type="submit"
+        class="boton boton--principal alta__enviar"
+        [attr.data-cargando]="dandoDeAlta() ? 'si' : null"
+        [disabled]="!puedeDarDeAlta() || dandoDeAlta()"
+      >
+        Dar de alta
+      </button>
+    </form>
+
+    @if (problemaDeAlta(); as fallo) {
+      <div class="alta__resultado">
+        <ec-aviso [problema]="fallo" tono="sello" />
+      </div>
+    } @else if (ultimaAlta(); as mensaje) {
+      <div class="alta__resultado">
+        <ec-aviso tono="listo" encabezado="Alta registrada" [cuerpo]="mensaje" />
+      </div>
+    }
+  </section>
+}
+
+<section class="busqueda" aria-label="Filtros del padrón">
+  <div class="buscador">
+    <ec-icono nombre="buscar" class="buscador__lupa" />
+    <label class="solo-lectores" for="filtro">Buscar por fragmento de placa</label>
+    <input
+      id="filtro"
+      class="campo__control buscador__control"
+      type="search"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Fragmento de placa…"
+      [value]="texto()"
+      (input)="alEscribirFiltro($event)"
+    />
+  </div>
+
+  <div class="pestanas" role="group" aria-label="Filtrar por clase">
+    @for (filtro of filtros; track filtro.rotulo) {
+      <button
+        type="button"
+        class="pestana"
+        [class.es-actual]="tipo() === filtro.valor"
+        [attr.aria-pressed]="tipo() === filtro.valor"
+        (click)="tipo.set(filtro.valor)"
+      >
+        {{ filtro.rotulo }}
+      </button>
+    }
+  </div>
+
+  @if (hayFiltro()) {
+    <button type="button" class="boton boton--menudo boton--fantasma" (click)="limpiarFiltros()">
+      Quitar filtros
+    </button>
+  }
+</section>
+
+@if (problema(); as fallo) {
+  <ec-aviso [problema]="fallo" [conReintento]="true" (reintentar)="recargar()" />
+} @else if (cargando()) {
+  <div class="cargando">
+    @for (fila of [1, 2, 3, 4, 5, 6, 7, 8]; track fila) {
+      <div class="hueso" style="height: 38px"></div>
+    }
+  </div>
+} @else if (filas().length === 0) {
+  <div class="hoja vacio-envoltura">
+    <div class="vacio">
+      @if (hayFiltro()) {
+        <p class="vacio__titulo">Ninguna placa coincide</p>
+        <p class="vacio__nota">
+          El padrón tiene vehículos, pero ninguno pasa estos filtros. Probá con un fragmento más
+          corto, o quitá el filtro de clase.
+        </p>
+        <button type="button" class="boton" (click)="limpiarFiltros()">Quitar filtros</button>
+      } @else {
+        <p class="vacio__titulo">El padrón está vacío</p>
+        <p class="vacio__nota">
+          Todavía no hay ningún vehículo registrado. Dá de alta a los oficiales y a los residentes;
+          cualquier otra placa se registra sola como no residente la primera vez que entra.
+        </p>
+        <button type="button" class="boton boton--principal" (click)="formularioAbierto.set(true)">
+          <ec-icono nombre="mas" />
+          Dar de alta
+        </button>
+      }
+    </div>
+  </div>
+} @else {
+  <div class="hoja tabla-envoltura" [attr.data-hay-abierta]="abierta() ? 'si' : 'no'">
+    <table class="registro">
+      <caption class="solo-lectores">
+        Padrón de vehículos. Cada fila se despliega con su historial de estancias.
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Placa</th>
+          <th scope="col">Clase</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="col-escala">
+            Permanencia
+            <ec-regla-permanencia />
+          </th>
+          <th scope="col" class="num">Estancias</th>
+          <th scope="col" class="num">Acumulado</th>
+          <th scope="col" class="num">Saldo</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (fila of filas(); track fila.placa) {
+          <tr
+            class="fila"
+            [class.es-abierta]="abierta() === fila.placa"
+            [attr.aria-expanded]="abierta() === fila.placa"
+            tabindex="0"
+            role="button"
+            (click)="alternar(fila.placa)"
+            (keydown.enter)="alternar(fila.placa)"
+            (keydown.space)="alternar(fila.placa)"
+          >
+            <td><ec-placa [valor]="fila.placa" tamano="menuda" /></td>
+            <td><ec-sello-clase [tipo]="fila.tipo" /></td>
+            <td>
+              @if (fila.estaDentro) {
+                <span class="estado estado--dentro">Dentro</span>
+              } @else {
+                <span class="estado">Fuera</span>
+              }
+            </td>
+            <td class="col-escala">
+              @if (fila.estaDentro) {
+                <ec-permanencia [minutos]="fila.minutos" />
+              } @else {
+                <span class="sin-dato">—</span>
+              }
+            </td>
+            <td class="num">{{ entero(fila.totalDeEstancias) }}</td>
+            <td class="num">
+              @if (fila.minutosAcumulados !== null) {
+                {{ duracion(fila.minutosAcumulados) }}
+              } @else {
+                <span class="sin-dato">no aplica</span>
+              }
+            </td>
+            <td class="num">
+              @if (fila.saldoPendiente !== null) {
+                {{ pesos(fila.saldoPendiente) }}
+              } @else {
+                <span class="sin-dato">—</span>
+              }
+            </td>
+          </tr>
+
+          @if (abierta() === fila.placa) {
+            <tr class="despliegue">
+              <td colspan="7">
+                @if (problemaDetalle(); as fallo) {
+                  <ec-aviso [problema]="fallo" />
+                } @else if (cargandoDetalle()) {
+                  <div class="despliegue__hueso">
+                    <div class="hueso" style="height: 20px; width: 40%"></div>
+                    <div class="hueso" style="height: 96px"></div>
+                  </div>
+                } @else if (detalle(); as d) {
+                  <div class="despliegue__cuerpo">
+                    <dl class="resumen">
+                      <div>
+                        <dt>Tarifa</dt>
+                        <dd>{{ pesos(d.tarifaPorMinuto) }} / min</dd>
+                      </div>
+                      <div>
+                        <dt>Alta</dt>
+                        <dd>{{ fechaYHora(d.fechaDeAlta) }}</dd>
+                      </div>
+                      <div>
+                        <dt>Tiempo total</dt>
+                        <dd>{{ duracion(d.totalDeMinutos) }}</dd>
+                      </div>
+                      <div>
+                        <dt>Total cobrado</dt>
+                        <dd>{{ pesos(d.totalCobrado) }}</dd>
+                      </div>
+                    </dl>
+
+                    @if (d.estancias.length === 0) {
+                      <p class="despliegue__vacio">
+                        Sin estancias registradas todavía.
+                      </p>
+                    } @else {
+                      <table class="registro registro--anidado">
+                        <caption class="rotulo">Últimas estancias</caption>
+                        <thead>
+                          <tr>
+                            <th scope="col">Entrada</th>
+                            <th scope="col">Salida</th>
+                            <th scope="col" class="num">Minutos</th>
+                            <th scope="col" class="num">Cobrado</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (estancia of d.estancias.slice(0, 5); track $index) {
+                            <tr>
+                              <td class="num">{{ fechaYHora(estancia.entrada) }}</td>
+                              <td class="num">
+                                @if (estancia.salida) {
+                                  {{ fechaYHora(estancia.salida) }}
+                                } @else {
+                                  <span class="estado estado--dentro">Abierta</span>
+                                }
+                              </td>
+                              <td class="num">{{ entero(estancia.minutos) }}</td>
+                              <td class="num">{{ pesos(estancia.importeCobrado) }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+
+                      @if (d.estancias.length > 5) {
+                        <p class="despliegue__mas">
+                          Se muestran 5 de {{ entero(d.estancias.length) }} estancias.
+                        </p>
+                      }
+                    }
+
+                    <a class="boton boton--menudo" [routerLink]="['/padron', d.placa]">
+                      Abrir la ficha completa
+                    </a>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+}

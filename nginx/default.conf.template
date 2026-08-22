@@ -1,0 +1,97 @@
+# Servidor del front del estacionamiento.
+#
+# Este archivo es una plantilla: el punto de entrada de la imagen de nginx pasa envsubst sobre
+# todo lo que haya en /etc/nginx/templates y deja el resultado en /etc/nginx/conf.d. La única
+# variable que se sustituye es ${API_ORIGEN}, porque NGINX_ENVSUBST_FILTER está acotado a ^API_
+# en el Dockerfile; sin ese filtro, envsubst se comería también las variables propias de nginx.
+
+server {
+    # 8080 y no 80: la imagen corre sin privilegios y en Linux los puertos por debajo de 1024
+    # requieren root. Es privado del contenedor; el puerto de fuera lo decide compose.yaml.
+    listen       8080;
+    server_name  _;
+
+    root  /usr/share/nginx/html;
+
+    # El navegador ya recibió el HTML; anunciar la versión del servidor sólo ayuda a quien
+    # busca una versión concreta con un fallo conocido.
+    server_tokens off;
+
+    # Las respuestas de la API son JSON y el bundle es JS y CSS: todo comprime bien. Las
+    # imágenes y las fuentes woff2 ya vienen comprimidas y no entran en la lista.
+    gzip              on;
+    gzip_vary         on;
+    gzip_min_length   1024;
+    gzip_proxied      any;
+    gzip_types        text/plain text/css application/javascript application/json
+                      image/svg+xml application/manifest+json;
+
+    # -----------------------------------------------------------------------------------------
+    # La API
+    # -----------------------------------------------------------------------------------------
+    # La razón de ser de esta imagen. El backend no configura CORS, así que el navegador no
+    # puede llamarlo desde otro origen: aquí el front y la API comparten uno solo, y el front
+    # sigue pidiendo a rutas relativas igual que con el proxy de `ng serve`.
+    #
+    # ${API_ORIGEN} va sin ruta a propósito. Con proxy_pass sin URI, nginx reenvía la petición
+    # original tal cual: /api/panel llega como /api/panel. Añadir una barra final aquí haría que
+    # nginx recortara el prefijo y el backend recibiera /panel, que no existe.
+
+    location /api/ {
+        proxy_pass         ${API_ORIGEN};
+        proxy_http_version 1.1;
+
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        # GET /api/cierre/informe recorre todos los residentes del padrón antes de responder.
+        # El minuto de margen es para que un padrón grande no se corte a mitad del informe.
+        proxy_connect_timeout 10s;
+        proxy_read_timeout    60s;
+    }
+
+    # Sonda de contacto de la cabecera. Va aparte porque cuelga de la raíz, no de /api.
+    location = /salud {
+        proxy_pass       ${API_ORIGEN};
+        proxy_set_header Host $host;
+        # No debe ensuciar el registro: la aplicación la consulta cada 30 segundos.
+        access_log       off;
+    }
+
+    # -----------------------------------------------------------------------------------------
+    # La aplicación
+    # -----------------------------------------------------------------------------------------
+
+    # Angular firma cada archivo con un hash en el nombre, así que un archivo concreto nunca
+    # cambia de contenido: se puede cachear para siempre. Cuando el contenido cambia, cambia el
+    # nombre, y el navegador pide uno nuevo.
+    #
+    # Sin `expires`: esa directiva emite su propio Cache-Control, que se sumaba al de add_header
+    # y dejaba dos cabeceras distintas en la misma respuesta. Se declara una sola, la que además
+    # puede llevar `immutable`, que `expires` no sabe poner.
+    location ~* \.(?:js|css|woff2|woff|ttf|otf|eot)$ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        access_log off;
+    }
+
+    # Sin hash en el nombre: favicon.ico y placa.svg se sirven tal cual desde public/, así que
+    # se cachean un mes y no un año.
+    location ~* \.(?:png|jpg|jpeg|gif|svg|ico|webp|avif)$ {
+        add_header Cache-Control "public, max-age=2592000";
+        access_log off;
+    }
+
+    # index.html es la excepción: es el índice que apunta a los archivos con hash. Si se cachea,
+    # el navegador sigue pidiendo el bundle viejo después de un despliegue.
+    location = /index.html {
+        add_header Cache-Control "no-cache, must-revalidate";
+    }
+
+    # El enrutado es del lado del cliente: /padron/ABC1234 no es un archivo en disco. Sin esta
+    # línea, recargar la página en cualquier ruta que no sea la raíz devuelve un 404.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

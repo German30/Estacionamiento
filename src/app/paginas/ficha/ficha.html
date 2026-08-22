@@ -1,0 +1,164 @@
+<a class="volver" routerLink="/padron">
+  <ec-icono nombre="volver" />
+  Volver al padrón
+</a>
+
+@if (problema(); as fallo) {
+  <div class="fallo">
+    <ec-aviso [problema]="fallo" [conReintento]="fallo.reintentable" (reintentar)="recargar()" />
+
+    @if (fallo.estado === 404) {
+      <p class="fallo__salida">
+        Si el vehículo debería existir, revisá que la placa esté bien escrita en la dirección, o
+        buscala en el <a routerLink="/padron">padrón</a>.
+      </p>
+    }
+  </div>
+} @else if (cargando()) {
+  <div class="cargando">
+    <div class="hueso" style="height: 120px"></div>
+    <div class="hueso" style="height: 88px"></div>
+    <div class="hueso" style="height: 260px"></div>
+  </div>
+} @else if (detalle(); as d) {
+  <article class="ficha">
+    <header class="encabezado guilloche">
+      <div class="encabezado__identidad">
+        <ec-placa [valor]="d.placa" tamano="monumento" />
+        <div class="encabezado__marcas">
+          <ec-sello-clase [tipo]="d.tipo" />
+          @if (d.estaDentro) {
+            <span class="estado estado--dentro">Dentro ahora</span>
+          } @else {
+            <span class="estado">Fuera</span>
+          }
+        </div>
+      </div>
+
+      <p class="encabezado__alta">
+        En el padrón desde el {{ fechaLarga(d.fechaDeAlta) }}
+      </p>
+    </header>
+
+    @if (estanciaAbierta(); as abierta) {
+      <section class="viva" aria-labelledby="tit-viva">
+        <h2 class="rotulo" id="tit-viva">Estancia en curso</h2>
+        <p class="viva__desde">Entró a las {{ fechaYHora(abierta.entrada) }}</p>
+        <ec-permanencia [minutos]="abierta.minutos" />
+      </section>
+    }
+
+    <section class="condiciones" aria-labelledby="tit-condiciones">
+      <h2 class="rotulo condiciones__rotulo" id="tit-condiciones">Condiciones de cobro</h2>
+
+      <dl class="renglones">
+        <div class="renglon">
+          <dt>Tarifa</dt>
+          <dd>{{ pesos(d.tarifaPorMinuto) }} por minuto</dd>
+        </div>
+        <div class="renglon">
+          <dt>Momento de cobro</dt>
+          <dd>
+            @switch (d.momentoDeCobro) {
+              @case ('Ninguno') {
+                No paga nunca
+              }
+              @case ('AFinDeMes') {
+                A fin de mes
+              }
+              @default {
+                Al salir
+              }
+            }
+          </dd>
+        </div>
+        @if (d.minutosAcumulados !== null) {
+          <div class="renglon">
+            <dt>Acumulado del mes</dt>
+            <dd>{{ duracion(d.minutosAcumulados) }}</dd>
+          </div>
+        }
+        @if (d.saldoPendiente !== null) {
+          <div class="renglon renglon--destacado">
+            <dt>Saldo a fin de mes</dt>
+            <dd>{{ pesos(d.saldoPendiente) }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    <section class="historico" aria-labelledby="tit-historico">
+      <h2 class="rotulo historico__rotulo" id="tit-historico">Historial de estancias</h2>
+
+      <dl class="renglones renglones--totales">
+        <div class="renglon">
+          <dt>Estancias</dt>
+          <dd>{{ entero(d.estancias.length) }}</dd>
+        </div>
+        <div class="renglon">
+          <dt>Tiempo total</dt>
+          <dd>{{ duracion(d.totalDeMinutos) }}</dd>
+        </div>
+        <div class="renglon renglon--destacado">
+          <dt>Total cobrado</dt>
+          <dd>{{ pesos(d.totalCobrado) }}</dd>
+        </div>
+      </dl>
+
+      @if (d.estancias.length === 0) {
+        <div class="hoja">
+          <div class="vacio">
+            <p class="vacio__titulo">Todavía no ha usado el estacionamiento</p>
+            <p class="vacio__nota">
+              @if (d.tipo === 'Residente') {
+                Está en el padrón y aparecerá en el informe de fin de mes con 0 minutos y $0.00
+                hasta que registre su primera entrada.
+              } @else {
+                En cuanto registres su primera entrada desde la caseta, la estancia aparece acá.
+              }
+            </p>
+            <a class="boton" routerLink="/caseta">Ir a la caseta</a>
+          </div>
+        </div>
+      } @else {
+        <div class="hoja historico__tabla">
+          <table class="registro">
+            <caption class="solo-lectores">
+              Todas las estancias registradas de {{ d.placa }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Entrada</th>
+                <th scope="col">Salida</th>
+                <th scope="col" class="num">Minutos</th>
+                <th scope="col" class="num">Cobrado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (estancia of d.estancias; track $index) {
+                <tr [class.es-abierta]="estancia.estaAbierta">
+                  <td class="num">{{ fechaYHora(estancia.entrada) }}</td>
+                  <td class="num">
+                    @if (estancia.salida) {
+                      {{ fechaYHora(estancia.salida) }}
+                    } @else {
+                      <span class="estado estado--dentro">Abierta</span>
+                    }
+                  </td>
+                  <td class="num">{{ entero(estancia.minutos) }}</td>
+                  <td class="num">
+                    @if (estancia.importeCobrado > 0) {
+                      {{ pesos(estancia.importeCobrado) }}
+                    } @else {
+                      <span class="sin-dato">{{ pesos(0) }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </article>
+}

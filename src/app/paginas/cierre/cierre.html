@@ -1,0 +1,268 @@
+<h1 class="titulo">Cierre de mes</h1>
+
+@if (problema(); as fallo) {
+  <ec-aviso [problema]="fallo" [conReintento]="true" (reintentar)="cargar()" />
+} @else if (cargando()) {
+  <div class="cargando">
+    <div class="hueso" style="height: 120px"></div>
+    <div class="hueso" style="height: 320px"></div>
+  </div>
+} @else if (informe(); as i) {
+  <div class="cierre">
+    <section class="informe" aria-labelledby="tit-informe">
+      <header class="informe__cabeza">
+        <h2 class="rotulo" id="tit-informe">Informe de pagos de residentes</h2>
+        <p class="informe__nota">
+          Calcularlo no modifica nada. Aparecen todos los residentes del padrón, ordenados por
+          placa, incluidos los que no usaron el estacionamiento.
+        </p>
+      </header>
+
+      <dl class="totales">
+        <div>
+          <dt>Residentes en el informe</dt>
+          <dd>{{ entero(i.lineas.length) }}</dd>
+        </div>
+        <div>
+          <dt>Con saldo</dt>
+          <dd>{{ entero(conSaldo()) }}</dd>
+        </div>
+        <div>
+          <dt>Tiempo total</dt>
+          <dd>{{ duracion(i.totalDeMinutos) }}</dd>
+        </div>
+        <div class="totales__importe">
+          <dt>Total a pagar</dt>
+          <dd>{{ pesos(i.totalAPagar) }}</dd>
+        </div>
+      </dl>
+
+      <div class="salidas">
+        <div class="descarga">
+          <p class="rotulo">Llevárselo</p>
+          <button
+            type="button"
+            class="boton boton--principal"
+            [attr.data-cargando]="descargando() ? 'si' : null"
+            [disabled]="descargando()"
+            (click)="descargar()"
+          >
+            <ec-icono nombre="descargar" />
+            Descargar el .txt
+          </button>
+          <p class="campo__nota">Con el formato de columnas del enunciado</p>
+        </div>
+
+        <form class="guardado" (submit)="guardarEnDisco($event)">
+          <div class="campo guardado__campo">
+            <label class="rotulo" for="ruta">Dejarlo escrito en el servidor</label>
+            <input
+              id="ruta"
+              class="campo__control guardado__ruta"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              [value]="ruta()"
+              [attr.aria-invalid]="problemaDeGuardado() ? 'true' : null"
+              (input)="alEscribirRuta($event)"
+            />
+            <p class="campo__nota">
+              Ruta vista desde el servidor. En el contenedor, <code>/informes</code> está montado
+              contra la carpeta <code>./informes</code> del anfitrión.
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            class="boton"
+            [attr.data-cargando]="guardando() ? 'si' : null"
+            [disabled]="!ruta().trim() || guardando()"
+          >
+            <ec-icono nombre="guardar" />
+            Guardar
+          </button>
+        </form>
+      </div>
+
+      @if (problemaDeDescarga(); as fallo) {
+        <ec-aviso [problema]="fallo" [conReintento]="true" (reintentar)="descargar()" />
+      }
+      @if (problemaDeGuardado(); as fallo) {
+        <ec-aviso [problema]="fallo" />
+      } @else if (guardadoEn(); as donde) {
+        <ec-aviso
+          tono="listo"
+          encabezado="Informe escrito en el servidor"
+          [cuerpo]="'Quedó en ' + donde + '.'"
+        />
+      }
+
+      @if (i.lineas.length === 0) {
+        <div class="hoja">
+          <div class="vacio">
+            <p class="vacio__titulo">No hay residentes en el padrón</p>
+            <p class="vacio__nota">
+              El informe de pagos sólo incluye residentes. Dá de alta al menos uno desde el padrón
+              para que este informe tenga contenido.
+            </p>
+          </div>
+        </div>
+      } @else {
+        <div class="hoja lineas">
+          <table class="registro">
+            <caption class="solo-lectores">Pagos de residentes del mes en curso</caption>
+            <thead>
+              <tr>
+                <th scope="col">Placa</th>
+                <th scope="col" class="num">Tiempo estacionado</th>
+                <th scope="col" class="num">Cantidad a pagar</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (linea of i.lineas; track linea.placa) {
+                <tr [class.es-cero]="linea.cantidadAPagar === 0">
+                  <td><ec-placa [valor]="linea.placa" tamano="menuda" /></td>
+                  <td class="num">{{ entero(linea.minutosEstacionado) }} min</td>
+                  <td class="num importe">{{ pesos(linea.cantidadAPagar) }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row">Total</th>
+                <td class="num">{{ entero(i.totalDeMinutos) }} min</td>
+                <td class="num importe">{{ pesos(i.totalAPagar) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <details class="crudo">
+          <summary class="crudo__resumen">Ver el archivo tal como se descarga</summary>
+          <p class="crudo__nota">
+            Columnas de ancho fijo y punto decimal: es el formato que fija el enunciado, y por eso
+            se muestra sin reformatear.
+          </p>
+          <pre class="crudo__texto"><code>{{ i.contenido }}</code></pre>
+        </details>
+      }
+    </section>
+
+    <!-- El acto irreversible. Vive detrás de un corte estructural, no de un modal: esconderlo
+         detrás de una ventana emergente lo volvería un clic de trámite. -->
+    <section class="irreversible" aria-labelledby="tit-mes">
+      <h2 class="rotulo irreversible__rotulo" id="tit-mes">
+        <ec-icono nombre="sello" />
+        Comenzar mes
+      </h2>
+
+      @if (resumen(); as r) {
+        <div class="hecho">
+          <ec-aviso
+            tono="listo"
+            encabezado="El mes comenzó"
+            cuerpo="Los contadores quedaron a cero. El informe de arriba ya refleja el mes nuevo."
+          />
+
+          <dl class="hecho__cifras">
+            <div>
+              <dt>Estancias eliminadas</dt>
+              <dd>{{ entero(r.estanciasEliminadas) }}</dd>
+            </div>
+            <div>
+              <dt>Oficiales afectados</dt>
+              <dd>{{ entero(r.vehiculosOficialesAfectados) }}</dd>
+            </div>
+            <div>
+              <dt>Residentes reiniciados</dt>
+              <dd>{{ entero(r.residentesReiniciados) }}</dd>
+            </div>
+            <div>
+              <dt>Minutos puestos a cero</dt>
+              <dd>{{ entero(r.minutosPuestosACero) }}</dd>
+            </div>
+            <div>
+              <dt>Seguían dentro y se conservaron</dt>
+              <dd>{{ entero(r.vehiculosDentroConservados) }}</dd>
+            </div>
+          </dl>
+        </div>
+      } @else {
+        <div class="consecuencias">
+          <p class="consecuencias__intro">Esto es lo que va a pasar, y no se puede deshacer:</p>
+          <ul class="consecuencias__lista">
+            <li>
+              Se borran las estancias ya cerradas de los vehículos oficiales.
+            </li>
+            <li>
+              Los <strong>{{ entero(i.lineas.length) }} residentes</strong> vuelven a cero minutos.
+              Se pierden <strong>{{ duracion(i.totalDeMinutos) }}</strong> acumulados y
+              <strong class="consecuencias__importe">{{ pesos(i.totalAPagar) }}</strong> por cobrar.
+            </li>
+            <li>
+              Los vehículos que estén dentro conservan su entrada abierta y podrán salir con
+              normalidad.
+            </li>
+            <li>El histórico de los no residentes no se toca: es el registro de lo ya cobrado.</li>
+          </ul>
+        </div>
+
+        <form class="guardia" (submit)="comenzarMes($event)">
+          <label class="salvaguarda">
+            <input
+              type="checkbox"
+              [checked]="informeASalvo()"
+              (change)="informeASalvo.set(!informeASalvo())"
+            />
+            <span>
+              Ya tengo el informe a salvo.
+              <span class="salvaguarda__nota">
+                Descargarlo o guardarlo en el servidor marca esta casilla solo.
+              </span>
+            </span>
+          </label>
+
+          <div class="campo guardia__campo">
+            <label class="rotulo" for="confirmacion">
+              Escribí {{ palabra }} para confirmar
+            </label>
+            <input
+              id="confirmacion"
+              class="campo__control guardia__palabra"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              [value]="confirmacion()"
+              [disabled]="!informeASalvo()"
+              [attr.aria-invalid]="problemaDeCierre() ? 'true' : null"
+              (input)="alEscribirConfirmacion($event)"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="boton boton--sello boton--grande"
+            [attr.data-cargando]="cerrando() ? 'si' : null"
+            [disabled]="!puedeCerrar()"
+          >
+            Comenzar mes
+          </button>
+
+          <p class="guardia__estado">
+            @if (!informeASalvo()) {
+              Descargá el informe primero, o confirmá que ya lo tenés.
+            } @else if (!palabraCorrecta()) {
+              Falta escribir {{ palabra }} exactamente.
+            } @else {
+              Todo listo. Este botón no se puede deshacer.
+            }
+          </p>
+        </form>
+
+        @if (problemaDeCierre(); as fallo) {
+          <ec-aviso [problema]="fallo" tono="sello" />
+        }
+      }
+    </section>
+  </div>
+}

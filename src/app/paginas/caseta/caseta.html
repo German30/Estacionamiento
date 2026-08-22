@@ -1,0 +1,262 @@
+<div class="caseta">
+  <section class="captura" aria-labelledby="tit-captura">
+    <h1 class="titulo" id="tit-captura">Caseta</h1>
+
+    <div class="campo campo--placa">
+      <label class="rotulo" for="placa">Número de placa</label>
+      <input
+        #campoDePlaca
+        id="placa"
+        name="placa"
+        class="entrada-de-placa"
+        type="text"
+        inputmode="latin"
+        autocomplete="off"
+        autocapitalize="characters"
+        spellcheck="false"
+        maxlength="14"
+        placeholder="ABC1234"
+        [value]="escrito()"
+        [attr.aria-invalid]="problema() ? 'true' : null"
+        [attr.aria-describedby]="problema() ? 'fallo-accion' : 'ayuda-placa'"
+        (input)="alTeclear($event)"
+        (keydown.enter)="alPulsarIntro($event)"
+      />
+
+      <p class="campo__nota" id="ayuda-placa">
+        @if (muestraNormalizacion()) {
+          Se va a registrar como <strong class="normalizada">{{ placa() }}</strong>
+        } @else {
+          Minúsculas, espacios y guiones dan lo mismo: «abc-1234» y «ABC1234» son el mismo vehículo.
+        }
+      </p>
+    </div>
+
+    <div class="acciones">
+      <button
+        type="button"
+        class="boton boton--grande accion"
+        [class.accion--propuesta]="propuesta() === 'entrada'"
+        [attr.data-cargando]="enCurso() === 'entrada' ? 'si' : null"
+        [disabled]="!listaParaEnviar() || enCurso() !== null"
+        (click)="ejecutar('entrada')"
+      >
+        <ec-icono nombre="entrada" />
+        Entrada
+        @if (propuesta() === 'entrada') {
+          <kbd class="accion__intro" aria-hidden="true">Intro</kbd>
+        }
+      </button>
+
+      <button
+        type="button"
+        class="boton boton--grande accion"
+        [class.accion--propuesta]="propuesta() === 'salida'"
+        [attr.data-cargando]="enCurso() === 'salida' ? 'si' : null"
+        [disabled]="!listaParaEnviar() || enCurso() !== null"
+        (click)="ejecutar('salida')"
+      >
+        <ec-icono nombre="salida" />
+        Salida
+        @if (propuesta() === 'salida') {
+          <kbd class="accion__intro" aria-hidden="true">Intro</kbd>
+        }
+      </button>
+    </div>
+
+    <p class="acciones__pie">
+      @if (propuesta() === 'salida') {
+        {{ placa() }} está dentro ahora mismo. Intro registra su salida.
+      } @else if (propuesta() === 'entrada') {
+        {{ placa() }} no está dentro. Intro registra su entrada.
+      } @else {
+        Escribí al menos cinco caracteres para habilitar las dos acciones.
+      }
+    </p>
+
+    <!-- El resultado. Es el único sitio de la aplicación donde se lee un importe a cobrar,
+         y ocupa siempre la misma posición para que el ojo no lo busque dos veces. -->
+    <div class="resultado" aria-live="polite">
+      @if (problema(); as fallo) {
+        <div id="fallo-accion">
+          <ec-aviso [problema]="fallo" tono="sello" [conReintento]="fallo.reintentable" (reintentar)="ejecutar(enCurso() ?? 'entrada')" />
+        </div>
+      } @else if (salida(); as s) {
+        <article class="cobro" [attr.data-cobra]="s.importeACobrarAhora > 0 ? 'si' : 'no'">
+          <header class="cobro__cabeza">
+            <ec-placa [valor]="s.placa" tamano="ficha" />
+            <ec-sello-clase [tipo]="s.tipoDeVehiculo" />
+          </header>
+
+          <p class="rotulo">Cobrar ahora</p>
+          <p class="cobro__cifra">
+            @if (s.importeACobrarAhora > 0) {
+              {{ pesos(s.importeACobrarAhora) }}
+            } @else {
+              No cobrar
+            }
+          </p>
+
+          <p class="cobro__razon">
+            @if (s.momentoDeCobro === 'Ninguno') {
+              Vehículo oficial: no paga nunca. La estancia queda registrada para el control.
+            } @else if (s.momentoDeCobro === 'AFinDeMes') {
+              Residente: liquida a fin de mes, no en la pluma.
+            } @else {
+              No residente: se cobra al salir.
+            }
+          </p>
+
+          <dl class="cobro__detalle">
+            <div>
+              <dt>Entrada</dt>
+              <dd>{{ hora(s.entrada) }}</dd>
+            </div>
+            <div>
+              <dt>Salida</dt>
+              <dd>{{ hora(s.salida) }}</dd>
+            </div>
+            <div>
+              <dt>Facturado</dt>
+              <!-- El minuto exacto además de la forma legible: es la base del importe, y «1 d
+                   00 h» esconde justo la cifra por la que el cliente puede preguntar. -->
+              <dd>{{ duracion(s.minutosFacturables) }}</dd>
+              <dd class="cobro__exacto">{{ entero(s.minutosFacturables) }} min</dd>
+            </div>
+            @if (s.minutosAcumulados !== null) {
+              <div>
+                <dt>Acumulado del mes</dt>
+                <dd>{{ duracion(s.minutosAcumulados) }}</dd>
+              </div>
+            }
+            @if (s.saldoPendiente !== null) {
+              <div>
+                <dt>Saldo a fin de mes</dt>
+                <dd>{{ pesos(s.saldoPendiente) }}</dd>
+              </div>
+            }
+          </dl>
+
+          <div class="cobro__pie">
+            <a class="boton boton--menudo" [routerLink]="['/padron', s.placa]">Ver ficha</a>
+            <button type="button" class="boton boton--menudo boton--fantasma" (click)="limpiar()">
+              Listo
+            </button>
+          </div>
+        </article>
+      } @else if (entrada(); as e) {
+        <article class="acuse">
+          <header class="acuse__cabeza">
+            <ec-placa [valor]="e.placa" tamano="ficha" />
+            <ec-sello-clase [tipo]="e.tipoDeVehiculo" />
+          </header>
+
+          <p class="acuse__linea">
+            <ec-icono nombre="listo" class="acuse__marca" />
+            Entrada registrada a las {{ hora(e.entrada) }}
+          </p>
+
+          @if (e.vehiculoRecienCreado) {
+            <ec-aviso
+              tono="atencion"
+              encabezado="Esta placa no estaba en el padrón"
+              cuerpo="Se dio de alta automáticamente como no residente, a MXN$0.5 por minuto. Si era un residente o un oficial, casi siempre significa que la placa se tecleó mal: registrá su salida y volvé a capturarla bien."
+            />
+          }
+
+          <div class="cobro__pie">
+            <a class="boton boton--menudo" [routerLink]="['/padron', e.placa]">Ver ficha</a>
+            <button type="button" class="boton boton--menudo boton--fantasma" (click)="limpiar()">
+              Listo
+            </button>
+          </div>
+        </article>
+      } @else {
+        <!-- Estado de reposo: enseña qué va a aparecer aquí y le da suelo a la columna. -->
+        <div class="reposo">
+          <p class="rotulo">Acuse</p>
+          <p class="reposo__texto">
+            Al registrar una salida, acá aparece el importe exacto a cobrar. Al registrar una
+            entrada, la hora y la clase del vehículo.
+          </p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="registro-dentro hoja" aria-labelledby="tit-dentro">
+    <header class="hoja__cabeza">
+      <h2 class="hoja__titulo" id="tit-dentro">
+        Dentro ahora
+        @if (!cargandoDentro()) {
+          <span class="cuenta">{{ filas().length }}</span>
+        }
+      </h2>
+      <p class="hoja__nota">El que más lleva, arriba</p>
+    </header>
+
+    @if (problemaDentro(); as fallo) {
+      <div class="registro-dentro__aviso">
+        <ec-aviso [problema]="fallo" [conReintento]="true" (reintentar)="cargarDentro()" />
+      </div>
+    } @else if (cargandoDentro()) {
+      <div class="registro-dentro__hueso">
+        @for (fila of [1, 2, 3, 4, 5, 6]; track fila) {
+          <div class="hueso" style="height: 34px"></div>
+        }
+      </div>
+    } @else if (filas().length === 0) {
+      <div class="vacio">
+        <p class="vacio__titulo">El estacionamiento está vacío</p>
+        <p class="vacio__nota">
+          En cuanto registres una entrada, el vehículo aparece acá con su permanencia corriendo.
+        </p>
+      </div>
+    } @else {
+      <div class="registro-dentro__tabla">
+        <table class="registro">
+          <caption class="solo-lectores">
+            Vehículos dentro del estacionamiento, ordenados por tiempo de permanencia
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Placa</th>
+              <th scope="col">Clase</th>
+              <th scope="col">Entró</th>
+              <th scope="col" class="col-escala">
+                Permanencia
+                <ec-regla-permanencia />
+              </th>
+              <th scope="col"><span class="solo-lectores">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (fila of filas(); track fila.placa) {
+              <tr [class.es-resaltada]="fila.resaltada">
+                <td>
+                  <a class="enlace-placa" [routerLink]="['/padron', fila.placa]">
+                    <ec-placa [valor]="fila.placa" tamano="menuda" />
+                  </a>
+                </td>
+                <td><ec-sello-clase [tipo]="fila.tipo" /></td>
+                <td class="num">{{ fila.dentroDesde ? hora(fila.dentroDesde) : '—' }}</td>
+                <td class="col-escala">
+                  <ec-permanencia [minutos]="fila.minutos" />
+                </td>
+                <td class="col-accion">
+                  <button
+                    type="button"
+                    class="boton boton--menudo"
+                    (click)="tomarDelRegistro(fila.placa)"
+                  >
+                    Sacar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>

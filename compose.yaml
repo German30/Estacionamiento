@@ -1,0 +1,48 @@
+# Front del estacionamiento.
+#
+#   docker compose up -d --build     compila el bundle y levanta nginx
+#   docker compose logs -f front     ver el arranque
+#   docker compose down              parar
+#
+# El front queda en http://localhost:4200.
+#
+# ATENCIÓN: el backend tiene que estar levantado primero, porque este archivo se engancha a la
+# red que crea su Compose en lugar de crear una propia. Desde la carpeta hermana:
+#
+#   cd ../Estacionamiento && SEMBRAR=100 docker compose up -d --build
+#
+# Son dos repositorios con ciclos de vida distintos, así que cada uno trae su propio Compose. Si
+# alguna vez se despliegan juntos, lo que corresponde es un tercer archivo que los componga, no
+# duplicar aquí la definición de la API y de MySQL.
+
+name: estacionamiento-front
+
+services:
+
+  front:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: estacionamiento-front
+    container_name: estacionamiento-front
+    restart: unless-stopped
+    environment:
+      # Origen del backend visto desde dentro de la red de Compose, no desde el navegador.
+      # "web" es el nombre del servicio de la API y lo resuelve el DNS interno de Docker.
+      # localhost aquí apuntaría al propio contenedor de nginx, no a la API.
+      API_ORIGEN: ${API_ORIGEN:-http://web:5209}
+    ports:
+      # 4200 fuera para no cambiar de dirección según se ejecute con `npm start` o en contenedor.
+      # 8080 dentro es el puerto de la imagen sin privilegios: en Linux, un proceso que no es
+      # root no puede escuchar por debajo del 1024, y esta imagen corre como uid 101.
+      - "${PUERTO_FRONT:-4200}:8080"
+    networks:
+      - api
+
+networks:
+  api:
+    # La red que ya creó el Compose del backend. `external` significa que este archivo la usa
+    # pero no la administra: `docker compose down` aquí no se lleva por delante la red del otro
+    # repositorio. El nombre sale de su `name: estacionamiento` más el sufijo _default.
+    name: ${RED_API:-estacionamiento_default}
+    external: true

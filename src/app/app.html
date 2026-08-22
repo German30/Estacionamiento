@@ -1,0 +1,70 @@
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<header class="barra guilloche">
+  <div class="barra__interior">
+    <a class="marca" routerLink="/caseta">
+      <svg class="marca__cuno" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <rect x="1.25" y="6.25" width="29.5" height="19.5" rx="3" fill="none" stroke="currentColor" stroke-width="2.5" />
+        <path d="M9 21V11h5.4a3.3 3.3 0 0 1 0 6.6H9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M20.5 11v10M20.5 11h3.6M20.5 16h3M20.5 21h3.6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+      </svg>
+      <span class="marca__texto">
+        <span class="marca__nombre">Padrón</span>
+        <span class="marca__pie">Estacionamiento</span>
+      </span>
+    </a>
+
+    <nav class="zonas" aria-label="Secciones">
+      <div class="zona">
+        <span class="rotulo zona__rotulo" id="zona-operacion">Operación</span>
+        <ul class="zona__lista" aria-labelledby="zona-operacion">
+          <li>
+            <a routerLink="/caseta" routerLinkActive="es-actual" class="via">
+              <ec-icono nombre="entrada" />Caseta
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="zona">
+        <span class="rotulo zona__rotulo" id="zona-administracion">Administración</span>
+        <ul class="zona__lista" aria-labelledby="zona-administracion">
+          <li>
+            <a routerLink="/panel" routerLinkActive="es-actual" class="via">
+              <ec-icono nombre="panel" />Panel
+            </a>
+          </li>
+          <li>
+            <a routerLink="/padron" routerLinkActive="es-actual" class="via">
+              <ec-icono nombre="padron" />Padrón
+            </a>
+          </li>
+          <li>
+            <a routerLink="/cierre" routerLinkActive="es-actual" class="via">
+              <ec-icono nombre="cierre" />Cierre
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <p class="contacto" [attr.data-estado]="contacto()">
+      <span class="contacto__pin" aria-hidden="true"></span>
+      <span class="contacto__texto">{{ leyendaDeContacto() }}</span>
+    </p>
+  </div>
+</header>
+
+@if (contacto() === 'sin-contacto') {
+  <div class="corte-de-servicio">
+    <ec-aviso
+      tono="sello"
+      encabezado="La API del estacionamiento no responde"
+      cuerpo="Ninguna pantalla va a cargar hasta que vuelva. Levantala con «docker compose up -d» desde la carpeta Estacionamiento; queda escuchando en el puerto 5209."
+    />
+  </div>
+}
+
+<main id="contenido" class="contenido" tabindex="-1">
+  <router-outlet />
+</main>

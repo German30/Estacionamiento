@@ -1,0 +1,198 @@
+// Reajuste y superficies del navegador.
+//
+// Las partes que no dibujamos también llevan el diseño: la selección de texto, el cursor, la
+// barra de desplazamiento, el anillo de foco y las cifras tabulares vienen de fábrica sin dueño.
+// Aquí se les asigna uno.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--letra);
+  font-size: var(--t-base);
+  font-weight: var(--peso-normal);
+  font-variation-settings: "wdth" var(--ancho-normal);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+// Toda cifra de este producto es una medición comparable en columna.
+body {
+  font-variant-numeric: tabular-nums;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  font-variation-settings: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: var(--peso-fuerte);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--verde-hondo);
+  text-decoration-color: var(--verde-borde);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color var(--paso) var(--curva);
+}
+
+a:hover {
+  text-decoration-color: currentcolor;
+}
+
+// ── Superficies del navegador ─────────────────────────────────────────────────
+
+::selection {
+  background: var(--verde);
+  color: var(--papel-alto);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo);
+  border-radius: var(--canto);
+}
+
+* {
+  caret-color: var(--verde);
+  scrollbar-color: var(--papel-borde) transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--papel-borde);
+  border: 3px solid var(--papel);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tinta-fantasma);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+// ── Guilloché ─────────────────────────────────────────────────────────────────
+// El grabado de un documento de seguridad, al 4%. Vive en las cabeceras y en los bordes de
+// zona, nunca bajo una tabla: el riesgo declarado de este mundo es volverse ornamento.
+
+.guilloche {
+  position: relative;
+  isolation: isolate;
+}
+
+.guilloche::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image:
+    repeating-radial-gradient(circle at 18% 50%, transparent 0 6px, var(--verde-hondo) 6px 6.6px),
+    repeating-radial-gradient(circle at 82% 50%, transparent 0 9px, var(--verde-hondo) 9px 9.6px);
+}
+
+// ── Versalitas de plantilla ───────────────────────────────────────────────────
+// El corte de sección estructural que donó la cantera de nubes: no una línea de un píxel con un
+// encabezado encima, sino un rótulo troquelado y un hueco duro.
+
+.rotulo {
+  display: block;
+  font-size: var(--t-micro);
+  font-weight: var(--peso-duro);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tinta-tenue);
+}
+
+// ── Accesibilidad ─────────────────────────────────────────────────────────────
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.saltar {
+  position: absolute;
+  top: var(--e2);
+  left: var(--e2);
+  z-index: 60;
+  padding: var(--e2) var(--e4);
+  background: var(--verde);
+  color: var(--papel-alto);
+  border-radius: var(--canto-caja);
+  font-weight: var(--peso-fuerte);
+  transform: translateY(-200%);
+  transition: transform var(--paso) var(--curva);
+}
+
+.saltar:focus-visible {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,384 @@
+:host {
+  display: block;
+}
+
+.titulo {
+  font-size: var(--t-titulo);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: var(--e5);
+}
+
+.cargando {
+  display: grid;
+  gap: var(--e4);
+  max-width: 900px;
+}
+
+.cierre {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+  gap: var(--e7);
+  align-items: start;
+  max-width: 1320px;
+}
+
+// ── Informe ───────────────────────────────────────────────────────────────────
+
+.informe {
+  display: grid;
+  gap: var(--e4);
+  min-width: 0;
+}
+
+.informe__cabeza {
+  display: grid;
+  gap: var(--e2);
+  padding-bottom: var(--e3);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.informe__nota {
+  max-width: var(--medida-prosa);
+  font-size: var(--t-menor);
+  line-height: 1.55;
+  color: var(--tinta-media);
+}
+
+.totales {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--e4);
+  margin: 0;
+}
+
+.totales dt {
+  font-size: var(--t-micro);
+  font-weight: var(--peso-duro);
+  font-variation-settings: "wdth" var(--ancho-estrecho);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tinta-tenue);
+}
+
+.totales dd {
+  margin: var(--e1) 0 0;
+  font-family: var(--letra-medida);
+  font-size: var(--t-mayor);
+  font-weight: var(--peso-fuerte);
+}
+
+.totales__importe dd {
+  font-size: var(--t-monto);
+  color: var(--verde-hondo);
+}
+
+// ── Salidas del informe ───────────────────────────────────────────────────────
+
+.salidas {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: var(--e5);
+  padding: var(--e4);
+  border: 1px solid var(--papel-borde-tenue);
+  border-radius: var(--canto-caja);
+  background: var(--papel-alto);
+}
+
+.descarga {
+  display: grid;
+  gap: var(--e2);
+  justify-items: start;
+  padding-right: var(--e5);
+  border-right: 1px solid var(--papel-borde-tenue);
+}
+
+.guardado {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: var(--e3);
+}
+
+.guardado__ruta {
+  font-family: var(--letra-medida);
+  font-size: var(--t-menor);
+}
+
+.guardado .boton {
+  margin-top: calc(var(--t-micro) * 1.5 + var(--e2));
+}
+
+.campo__nota code {
+  font-family: var(--letra-medida);
+  font-size: 0.92em;
+  padding: 0 3px;
+  border-radius: var(--canto);
+  background: var(--papel-hondo);
+}
+
+// ── Líneas del informe ────────────────────────────────────────────────────────
+
+.lineas {
+  overflow: hidden;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.importe {
+  font-weight: var(--peso-fuerte);
+}
+
+// Un residente que no usó el estacionamiento aparece igual, con cero: eso lo fija el enunciado.
+// Se atenúa para que las filas que sí se cobran se lean primero, sin sacarlo de la lista.
+.registro tbody tr.es-cero td {
+  color: var(--tinta-tenue);
+}
+
+.registro tfoot th,
+.registro tfoot td {
+  position: sticky;
+  bottom: 0;
+  padding: var(--e2) var(--e3);
+  background: var(--papel-hondo);
+  border-top: 2px solid var(--tinta);
+  font-weight: var(--peso-duro);
+  text-align: left;
+}
+
+.registro tfoot td {
+  font-family: var(--letra-medida);
+  font-size: var(--t-menor);
+  text-align: right;
+}
+
+// ── El archivo crudo ──────────────────────────────────────────────────────────
+
+.crudo {
+  border: 1px solid var(--papel-borde-tenue);
+  border-radius: var(--canto-caja);
+  background: var(--papel-alto);
+}
+
+.crudo__resumen {
+  padding: var(--e3) var(--e4);
+  font-size: var(--t-menor);
+  font-weight: var(--peso-fuerte);
+  color: var(--verde-hondo);
+  cursor: pointer;
+  border-radius: var(--canto-caja);
+}
+
+.crudo__resumen:focus-visible {
+  box-shadow: var(--anillo);
+}
+
+.crudo__nota {
+  padding: 0 var(--e4);
+  font-size: var(--t-menor);
+  color: var(--tinta-tenue);
+  max-width: var(--medida-prosa);
+}
+
+.crudo__texto {
+  margin: var(--e3) var(--e4) var(--e4);
+  padding: var(--e3);
+  border: 1px solid var(--papel-borde-tenue);
+  border-radius: var(--canto);
+  background: var(--papel-hondo);
+  font-family: var(--letra-medida);
+  font-size: var(--t-menor);
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+// ── Lo irreversible ───────────────────────────────────────────────────────────
+// Encontrable, pero defendido. El rojo de sello aparece aquí y en ningún otro sitio de la
+// aplicación que no sea un error.
+
+.irreversible {
+  display: grid;
+  gap: var(--e4);
+  padding: var(--e5);
+  border: 1px solid var(--sello-borde);
+  border-radius: var(--canto-caja);
+  background: var(--sello-vela);
+  position: sticky;
+  top: calc(var(--barra-alto) + var(--e5));
+}
+
+.irreversible__rotulo {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  padding-bottom: var(--e2);
+  border-bottom: 1px solid var(--sello-borde);
+  color: var(--sello-hondo);
+}
+
+.irreversible__rotulo ec-icono {
+  --icono-tamano: 1.1rem;
+}
+
+.consecuencias__intro {
+  font-size: var(--t-menor);
+  font-weight: var(--peso-fuerte);
+  color: var(--sello-hondo);
+  margin-bottom: var(--e2);
+}
+
+.consecuencias__lista {
+  display: grid;
+  gap: var(--e2);
+  margin: 0;
+  padding-left: var(--e4);
+  font-size: var(--t-menor);
+  line-height: 1.55;
+  color: color-mix(in oklab, var(--sello-hondo) 84%, var(--sello-vela));
+}
+
+.consecuencias__lista::marker,
+.consecuencias__lista li::marker {
+  color: var(--sello);
+}
+
+.consecuencias__importe {
+  font-family: var(--letra-medida);
+  color: var(--sello-hondo);
+}
+
+// ── La guardia ────────────────────────────────────────────────────────────────
+
+.guardia {
+  display: grid;
+  gap: var(--e4);
+  padding-top: var(--e4);
+  border-top: 1px solid var(--sello-borde);
+}
+
+.salvaguarda {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e2);
+  font-size: var(--t-menor);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.salvaguarda input {
+  margin-top: 3px;
+  accent-color: var(--sello);
+  flex: none;
+}
+
+.salvaguarda__nota {
+  display: block;
+  color: color-mix(in oklab, var(--sello-hondo) 70%, var(--sello-vela));
+}
+
+.guardia__campo .rotulo {
+  color: var(--sello-hondo);
+}
+
+.guardia__palabra {
+  font-family: var(--letra-medida);
+  font-weight: var(--peso-duro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-color: var(--sello-borde);
+}
+
+.guardia__palabra:focus-visible {
+  box-shadow: var(--anillo-sello);
+}
+
+.guardia__palabra:disabled {
+  background: color-mix(in oklab, var(--sello-vela) 70%, var(--papel-hondo));
+}
+
+.guardia .boton--grande {
+  width: 100%;
+}
+
+.guardia__estado {
+  font-size: var(--t-menor);
+  color: color-mix(in oklab, var(--sello-hondo) 78%, var(--sello-vela));
+  min-height: 1.4em;
+}
+
+// ── Después del cierre ────────────────────────────────────────────────────────
+
+.hecho {
+  display: grid;
+  gap: var(--e4);
+}
+
+.hecho__cifras {
+  display: grid;
+  gap: var(--e3);
+  margin: 0;
+}
+
+.hecho__cifras > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e3);
+  padding-bottom: var(--e2);
+  border-bottom: 1px solid var(--sello-borde);
+}
+
+.hecho__cifras dt {
+  font-size: var(--t-menor);
+  color: var(--sello-hondo);
+}
+
+.hecho__cifras dd {
+  margin: 0;
+  font-family: var(--letra-medida);
+  font-weight: var(--peso-duro);
+  color: var(--sello-hondo);
+}
+
+// ── Adaptación ────────────────────────────────────────────────────────────────
+
+@media (width < 1080px) {
+  .descarga {
+    padding-right: 0;
+    padding-bottom: var(--e4);
+    border-right: 0;
+    border-bottom: 1px solid var(--papel-borde-tenue);
+  }
+
+  .cierre {
+    grid-template-columns: 1fr;
+    gap: var(--e6);
+  }
+
+  .irreversible {
+    position: static;
+  }
+
+  .salidas {
+    grid-template-columns: 1fr;
+    gap: var(--e4);
+  }
+}
+
+@media (width < 640px) {
+  .guardado {
+    grid-template-columns: 1fr;
+  }
+
+  .guardado .boton {
+    margin-top: 0;
+    justify-self: start;
+  }
+
+  .irreversible {
+    padding: var(--e4);
+  }
+}

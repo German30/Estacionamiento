@@ -1,0 +1,43 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    /* Código muerto. Sin esto un import sin usar compila y pasa las pruebas. */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    /* Indexar un arreglo o un diccionario devuelve `T | undefined`. Este front consume una API
+       ajena: asumir que una posición existe es la clase de suposición que revienta en runtime. */
+    "noUncheckedIndexedAccess": true,
+    /* Distingue "la propiedad no está" de "la propiedad vale undefined". Los contratos de la API
+       usan `| null` explícito, así que esta regla no cuesta nada y cierra el hueco. */
+    "exactOptionalPropertyTypes": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "typeCheckHostBindings": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}

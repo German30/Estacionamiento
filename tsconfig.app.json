@@ -1,0 +1,25 @@
+/* Programa de la aplicación: lo que se compila y se manda al navegador.
+   Las reglas de tipado compartidas están en ./tsconfig.json y se heredan; acá sólo va lo que
+   distingue este programa del de pruebas.
+   https://angular.dev/reference/configs/angular-compiler-options */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /* El compilador de producción es esbuild (@angular/build:application) y no emite por acá:
+       esta carpeta sólo se usa si alguien corre `tsc -p tsconfig.app.json` a mano. */
+    "outDir": "./out-tsc/app",
+    /* Explícito: TypeScript 6 deja de deducirlo del conjunto de archivos, y sin esto el
+       diseño de la carpeta de salida cambiaría al agregar o quitar un archivo. */
+    "rootDir": "./src",
+    /* Vacío a propósito. Sin esto, cualquier @types instalado entra como tipo global; en
+       particular @types/node cambiaría setInterval de `number` a `NodeJS.Timeout` y rompería
+       nucleo/reloj.ts y nucleo/salud.ts. El DOM sigue disponible: viene de lib.es2022.full. */
+    "types": []
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
+}
